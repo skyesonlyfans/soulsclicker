@@ -166,10 +166,17 @@
         </div>
     </div>
 
-    <div class="w-full md:w-[30%] bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col z-10 shadow-[5px_0_15px_rgba(0,0,0,0.5)] overflow-y-auto h-[40vh] md:h-full order-2 md:order-1">
+    <!-- Mobile Overlay -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/80 z-40 hidden md:hidden backdrop-blur-sm transition-opacity" onclick="closeMenus()"></div>
+
+    <!-- Left Panel: Player Stats (Collapsible on Mobile) -->
+    <div id="left-panel" class="fixed inset-y-0 left-0 w-[85vw] sm:w-80 md:w-[30%] bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col z-50 shadow-[5px_0_15px_rgba(0,0,0,0.5)] overflow-y-auto h-full transform -translate-x-full md:translate-x-0 transition-transform duration-300 md:relative md:order-1">
         <h2 class="cinzel text-xl md:text-2xl text-center text-zinc-300 border-b border-zinc-700 pb-2 mb-4 flex justify-between items-center">
             <span><span id="player-name-display">Undead</span> <span id="ng-badge" class="text-purple-500 text-sm hidden">(NG+)</span></span>
-            <button onclick="togglePause()" class="text-zinc-500 hover:text-zinc-300" title="Pause (Esc)"><i class="fa-solid fa-bars"></i></button>
+            <div class="flex items-center gap-3">
+                <button onclick="togglePause()" class="text-zinc-500 hover:text-zinc-300" title="Pause (Esc)"><i class="fa-solid fa-bars"></i></button>
+                <button onclick="closeMenus()" class="md:hidden text-zinc-500 hover:text-zinc-300 text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
         </h2>
 
         <div class="mb-2">
@@ -244,16 +251,25 @@
         </div>
     </div>
 
-    <div id="main-area" class="flex-1 bg-zinc-950 flex flex-col relative overflow-hidden h-[40vh] md:h-full order-1 md:order-2">
+    <!-- Center Panel: Game Area (Full screen on Mobile) -->
+    <div id="main-area" class="flex-1 bg-zinc-950 flex flex-col relative overflow-hidden h-full order-1 md:order-2">
         <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
 
-        <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative z-10 w-full h-full">
-            <div class="absolute top-4 md:top-8 text-center w-full pointer-events-none">
+        <!-- Mobile Menu Toggle Buttons -->
+        <button onclick="toggleLeftMenu()" class="absolute top-4 left-4 z-30 md:hidden w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-600 text-[#c5a961] shadow-lg flex items-center justify-center hover:bg-zinc-700 transition">
+            <i class="fa-solid fa-user-shield text-xl"></i>
+        </button>
+        <button onclick="toggleRightMenu()" class="absolute top-4 right-4 z-30 md:hidden w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-600 text-purple-400 shadow-lg flex items-center justify-center hover:bg-zinc-700 transition">
+            <i class="fa-solid fa-book-skull text-xl"></i>
+        </button>
+
+        <div class="flex-1 flex flex-col items-center justify-center p-4 md:p-8 relative z-10 w-full h-full pb-8">
+            <div class="absolute top-6 md:top-8 text-center w-full pointer-events-none">
                 <h2 id="location-name" class="cinzel text-xl md:text-3xl text-zinc-400 tracking-[0.1em] md:tracking-[0.2em]">Ol' Hollow Shrine</h2>
                 <div class="w-24 md:w-32 h-px bg-gradient-to-r from-transparent via-zinc-500 to-transparent mx-auto mt-1 md:mt-2"></div>
             </div>
 
-            <div id="boss-ui" class="absolute top-16 md:top-24 w-11/12 md:w-3/4 hidden flex-col items-center pointer-events-none">
+            <div id="boss-ui" class="absolute top-20 md:top-24 w-11/12 md:w-3/4 hidden flex-col items-center pointer-events-none">
                 <span id="boss-name" class="cinzel text-red-500 text-lg md:text-2xl mb-1 md:mb-2 drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">Iudex</span>
                 
                 <span id="sun-knights-active-tag" class="text-xs text-yellow-500 font-bold tracking-wider mb-1 hidden"><i class="fa-regular fa-sun animate-spin text-xs mr-1"></i> Sun Knights Assisting!</span>
@@ -267,7 +283,7 @@
                 </div>
             </div>
 
-            <div id="click-zone" class="relative w-48 h-48 md:w-80 md:h-80 flex justify-center items-center mt-8 md:mt-12 touch-none">
+            <div id="click-zone" class="relative w-48 h-48 md:w-80 md:h-80 flex justify-center items-center touch-none">
                 <div id="target-bonfire" class="text-7xl md:text-9xl bonfire-anim absolute" onclick="gatherSouls(event)">
                     <i class="fa-solid fa-fire"></i>
                 </div>
@@ -286,13 +302,13 @@
                 </div>
             </div>
 
-            <div class="mt-auto mb-4 md:mb-0 md:mt-20 flex flex-col gap-2 w-full max-w-sm justify-center items-center z-20">
-                <button id="btn-challenge" onclick="challengeBoss()" class="w-full bg-zinc-900 border border-red-900/50 hover:border-red-700 text-zinc-400 hover:text-red-400 transition cinzel py-2 md:py-3 px-4 md:px-6 rounded tracking-wider shadow-[0_0_10px_rgba(139,0,0,0.1)] hover:shadow-[0_0_15px_rgba(139,0,0,0.3)] text-sm md:text-base">
+            <div class="mt-auto md:mt-20 flex flex-col gap-2 w-full max-w-sm justify-center items-center z-20">
+                <button id="btn-challenge" onclick="challengeBoss()" class="w-full bg-zinc-900 border border-red-900/50 hover:border-red-700 text-zinc-400 hover:text-red-400 transition cinzel py-3 md:py-3 px-4 md:px-6 rounded tracking-wider shadow-[0_0_10px_rgba(139,0,0,0.1)] hover:shadow-[0_0_15px_rgba(139,0,0,0.3)] text-base">
                     Traverse the Fog (Boss)
                 </button>
                 
                 <div id="dodge-container" class="hidden w-full flex flex-col gap-2">
-                    <button id="dodge-btn" onclick="dodge('space')" class="w-full bg-zinc-800 border border-zinc-600 text-zinc-200 cinzel py-2 md:py-3 px-4 md:px-6 rounded text-base md:text-lg flex items-center justify-center gap-2 shadow-lg active:bg-zinc-700">
+                    <button id="dodge-btn" onclick="dodge('space')" class="w-full bg-zinc-800 border border-zinc-600 text-zinc-200 cinzel py-3 md:py-3 px-4 md:px-6 rounded text-lg flex items-center justify-center gap-2 shadow-lg active:bg-zinc-700">
                         <i class="fa-solid fa-shield-halved"></i> DODGE
                     </button>
                 </div>
@@ -300,80 +316,83 @@
         </div>
     </div>
 
-    <div class="w-full md:w-[30%] bg-zinc-900 border-l border-zinc-800 h-[30vh] md:h-full flex flex-col z-10 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] order-3">
-        <div class="flex border-b border-zinc-800">
-            <button onclick="switchTab('summons')" id="tab-summons" class="flex-1 py-2 md:py-3 cinzel text-xs md:text-sm text-[#c5a961] border-b-2 border-[#c5a961] bg-zinc-800/50 transition">Summons</button>
-            <button onclick="switchTab('spells')" id="tab-spells" class="flex-1 py-2 md:py-3 cinzel text-xs md:text-sm text-zinc-500 hover:text-zinc-300 transition">Spells</button>
+    <!-- Right Panel: Summons & Spells (Collapsible on Mobile) -->
+    <div id="right-panel" class="fixed inset-y-0 right-0 w-[85vw] sm:w-80 md:w-[30%] bg-zinc-900 border-l border-zinc-800 h-full flex flex-col z-50 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] transform translate-x-full md:translate-x-0 transition-transform duration-300 md:relative md:order-3">
+        <div class="flex border-b border-zinc-800 relative">
+            <button onclick="switchTab('summons')" id="tab-summons" class="flex-1 py-3 md:py-3 cinzel text-sm text-[#c5a961] border-b-2 border-[#c5a961] bg-zinc-800/50 transition">Summons</button>
+            <button onclick="switchTab('spells')" id="tab-spells" class="flex-1 py-3 md:py-3 cinzel text-sm text-zinc-500 hover:text-zinc-300 transition">Spells</button>
+            
+            <button onclick="closeMenus()" class="md:hidden absolute top-1/2 -translate-y-1/2 right-2 text-zinc-400 hover:text-white w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center border border-zinc-700 shadow z-20"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="p-2 md:p-4 overflow-y-auto flex-1 relative">
             <div id="panel-summons" class="space-y-2 md:space-y-3">
-                <button id="sum-hollow" onclick="buySummon('hollow')" class="btn-upgrade w-full p-2 md:p-3 rounded flex justify-between items-center text-left">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-6 h-6 md:w-8 md:h-8 rounded bg-zinc-800 flex items-center justify-center text-zinc-500 text-xs md:text-base"><i class="fa-solid fa-ghost"></i></div>
+                <button id="sum-hollow" onclick="buySummon('hollow')" class="btn-upgrade w-full p-3 md:p-3 rounded flex justify-between items-center text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-zinc-500 text-base"><i class="fa-solid fa-ghost"></i></div>
                         <div>
-                            <div class="cinzel text-zinc-200 text-xs md:text-base">Hollow Slave <span id="qty-hollow" class="text-zinc-500 text-[10px] md:text-sm ml-1">x0</span></div>
-                            <div class="text-[9px] md:text-xs text-zinc-500">1 Soul / sec</div>
+                            <div class="cinzel text-zinc-200 text-base">Hollow Slave <span id="qty-hollow" class="text-zinc-500 text-sm ml-1">x0</span></div>
+                            <div class="text-xs text-zinc-500">1 Soul / sec</div>
                         </div>
                     </div>
-                    <div class="text-[#c5a961] text-xs md:text-sm"><span id="cost-hollow">50</span> S</div>
+                    <div class="text-[#c5a961] text-sm"><span id="cost-hollow">50</span> S</div>
                 </button>
 
-                <button id="sum-warrior" onclick="buySummon('warrior')" class="btn-upgrade w-full p-2 md:p-3 rounded flex justify-between items-center text-left">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-6 h-6 md:w-8 md:h-8 rounded bg-zinc-800 flex items-center justify-center text-zinc-500 text-xs md:text-base"><i class="fa-solid fa-khanda"></i></div>
+                <button id="sum-warrior" onclick="buySummon('warrior')" class="btn-upgrade w-full p-3 md:p-3 rounded flex justify-between items-center text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-zinc-500 text-base"><i class="fa-solid fa-khanda"></i></div>
                         <div>
-                            <div class="cinzel text-zinc-200 text-xs md:text-base">Undead Warrior <span id="qty-warrior" class="text-zinc-500 text-[10px] md:text-sm ml-1">x0</span></div>
-                            <div class="text-[9px] md:text-xs text-zinc-500">5 Souls / sec</div>
+                            <div class="cinzel text-zinc-200 text-base">Undead Warrior <span id="qty-warrior" class="text-zinc-500 text-sm ml-1">x0</span></div>
+                            <div class="text-xs text-zinc-500">5 Souls / sec</div>
                         </div>
                     </div>
-                    <div class="text-[#c5a961] text-xs md:text-sm"><span id="cost-warrior">500</span> S</div>
+                    <div class="text-[#c5a961] text-sm"><span id="cost-warrior">500</span> S</div>
                 </button>
                 
-                <button id="sum-knight" onclick="buySummon('knight')" class="btn-upgrade w-full p-2 md:p-3 rounded flex justify-between items-center text-left">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-6 h-6 md:w-8 md:h-8 rounded bg-zinc-800 flex items-center justify-center text-yellow-500 text-xs md:text-base"><i class="fa-regular fa-sun"></i></div>
+                <button id="sum-knight" onclick="buySummon('knight')" class="btn-upgrade w-full p-3 md:p-3 rounded flex justify-between items-center text-left">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-yellow-500 text-base"><i class="fa-regular fa-sun"></i></div>
                         <div>
-                            <div class="cinzel text-zinc-200 text-xs md:text-base">Sun Knight <span id="qty-knight" class="text-zinc-500 text-[10px] md:text-sm ml-1">x0</span></div>
-                            <div class="text-[9px] md:text-xs text-zinc-500">25 Souls / sec</div>
+                            <div class="cinzel text-zinc-200 text-base">Sun Knight <span id="qty-knight" class="text-zinc-500 text-sm ml-1">x0</span></div>
+                            <div class="text-xs text-zinc-500">25 Souls / sec</div>
                         </div>
                     </div>
-                    <div class="text-[#c5a961] text-xs md:text-sm"><span id="cost-knight">3000</span> S</div>
+                    <div class="text-[#c5a961] text-sm"><span id="cost-knight">3000</span> S</div>
                 </button>
             </div>
 
             <div id="panel-spells" class="space-y-2 md:space-y-3 hidden">
-                <button onclick="castSpell('powerWithin')" class="w-full p-2 md:p-3 rounded flex justify-between items-center text-left bg-red-950/30 border border-red-900 hover:bg-red-900/50 hover:border-red-500 transition">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-6 h-6 md:w-8 md:h-8 rounded bg-red-900/50 flex items-center justify-center text-red-300 text-xs md:text-base"><i class="fa-solid fa-fire-flame-curved"></i></div>
+                <button onclick="castSpell('powerWithin')" class="w-full p-3 md:p-3 rounded flex justify-between items-center text-left bg-red-950/30 border border-red-900 hover:bg-red-900/50 hover:border-red-500 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-red-900/50 flex items-center justify-center text-red-300 text-base"><i class="fa-solid fa-fire-flame-curved"></i></div>
                         <div>
-                            <div class="cinzel text-red-200 text-xs md:text-base">Power Within</div>
-                            <div class="text-[9px] md:text-xs text-red-400/70">Boost Dmg 5x (10s)</div>
+                            <div class="cinzel text-red-200 text-base">Power Within</div>
+                            <div class="text-xs text-red-400/70">Boost Dmg 5x (10s)</div>
                         </div>
                     </div>
-                    <div class="text-red-300 text-[10px] md:text-sm bg-red-900/50 px-1 md:px-2 py-1 rounded">2,000 S</div>
+                    <div class="text-red-300 text-sm bg-red-900/50 px-2 py-1 rounded">2,000 S</div>
                 </button>
 
-                <button onclick="castSpell('soulStream')" class="w-full p-2 md:p-3 rounded flex justify-between items-center text-left bg-blue-950/30 border border-blue-900 hover:bg-blue-900/50 hover:border-blue-500 transition">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-6 h-6 md:w-8 md:h-8 rounded bg-blue-900/50 flex items-center justify-center text-blue-300 text-xs md:text-base"><i class="fa-solid fa-water"></i></div>
+                <button onclick="castSpell('soulStream')" class="w-full p-3 md:p-3 rounded flex justify-between items-center text-left bg-blue-950/30 border border-blue-900 hover:bg-blue-900/50 hover:border-blue-500 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-blue-900/50 flex items-center justify-center text-blue-300 text-base"><i class="fa-solid fa-water"></i></div>
                         <div>
-                            <div class="cinzel text-blue-200 text-xs md:text-base">Soul Stream</div>
-                            <div class="text-[9px] md:text-xs text-blue-400/70">Auto-Click (5s)</div>
+                            <div class="cinzel text-blue-200 text-base">Soul Stream</div>
+                            <div class="text-xs text-blue-400/70">Auto-Click (5s)</div>
                         </div>
                     </div>
-                    <div class="text-blue-300 text-[10px] md:text-sm bg-blue-900/50 px-1 md:px-2 py-1 rounded">5,000 S</div>
+                    <div class="text-blue-300 text-sm bg-blue-900/50 px-2 py-1 rounded">5,000 S</div>
                 </button>
                 
-                <button onclick="castSpell('wotg')" class="w-full p-2 md:p-3 rounded flex justify-between items-center text-left bg-yellow-950/30 border border-yellow-900 hover:bg-yellow-900/50 hover:border-yellow-500 transition">
-                    <div class="flex items-center gap-2 md:gap-3">
-                        <div class="w-6 h-6 md:w-8 md:h-8 rounded bg-yellow-900/50 flex items-center justify-center text-yellow-300 text-xs md:text-base"><i class="fa-solid fa-bahai"></i></div>
+                <button onclick="castSpell('wotg')" class="w-full p-3 md:p-3 rounded flex justify-between items-center text-left bg-yellow-950/30 border border-yellow-900 hover:bg-yellow-900/50 hover:border-yellow-500 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-yellow-900/50 flex items-center justify-center text-yellow-300 text-base"><i class="fa-solid fa-bahai"></i></div>
                         <div>
-                            <div class="cinzel text-yellow-200 text-xs md:text-base">Wrath of Gods</div>
-                            <div class="text-[9px] md:text-xs text-yellow-400/70">Massive Burst</div>
+                            <div class="cinzel text-yellow-200 text-base">Wrath of Gods</div>
+                            <div class="text-xs text-yellow-400/70">Massive Burst</div>
                         </div>
                     </div>
-                    <div class="text-yellow-300 text-[10px] md:text-sm bg-yellow-900/50 px-1 md:px-2 py-1 rounded">15,000 S</div>
+                    <div class="text-yellow-300 text-sm bg-yellow-900/50 px-2 py-1 rounded">15,000 S</div>
                 </button>
             </div>
         </div>
@@ -382,8 +401,8 @@
             <div class="flex justify-center items-center gap-3">
                 <span id="pulsing-skull" class="text-2xl select-none pulsing-skull">💀</span>
                 <div class="text-left">
-                    <div class="text-zinc-400 text-xs md:text-sm cinzel">Souls Held</div>
-                    <div id="souls-display" class="text-2xl md:text-3xl cinzel text-[#c5a961] drop-shadow-[0_0_5px_rgba(197,169,97,0.5)]">0</div>
+                    <div class="text-zinc-400 text-sm cinzel">Souls Held</div>
+                    <div id="souls-display" class="text-3xl cinzel text-[#c5a961] drop-shadow-[0_0_5px_rgba(197,169,97,0.5)]">0</div>
                 </div>
             </div>
             
@@ -393,7 +412,7 @@
                 </div>
             </div>
 
-            <div id="sps-display" class="text-[10px] md:text-xs text-zinc-500 mt-1">0 Souls / sec</div>
+            <div id="sps-display" class="text-xs text-zinc-500 mt-1">0 Souls / sec</div>
         </div>
     </div>
 
@@ -453,6 +472,9 @@
             maidenType: 0, secretBossActive: false, pendingWeaponChest: false
         };
 
+        let leftMenuOpen = false;
+        let rightMenuOpen = false;
+
         const DOM = {
             startup: document.getElementById('startup-screen'), btnGuest: document.getElementById('btn-login-guest'),
             nameScreen: document.getElementById('name-create-screen'), nameInput: document.getElementById('player-name-input'), nameDisplay: document.getElementById('player-name-display'),
@@ -474,7 +496,37 @@
             sunKnightsTag: document.getElementById('sun-knights-active-tag'),
             pulsingSkull: document.getElementById('pulsing-skull'),
             soulEmbersIcons: document.getElementById('soul-embers-icons'),
-            soulEmbersPanel: document.getElementById('soul-embers-panel')
+            soulEmbersPanel: document.getElementById('soul-embers-panel'),
+            leftPanel: document.getElementById('left-panel'), rightPanel: document.getElementById('right-panel'), mobileOverlay: document.getElementById('mobile-overlay')
+        };
+
+        window.toggleLeftMenu = () => {
+            leftMenuOpen = !leftMenuOpen;
+            if (leftMenuOpen) {
+                DOM.leftPanel.classList.remove('-translate-x-full');
+                DOM.mobileOverlay.classList.remove('hidden');
+                if (rightMenuOpen) window.toggleRightMenu();
+            } else {
+                DOM.leftPanel.classList.add('-translate-x-full');
+                if (!rightMenuOpen) DOM.mobileOverlay.classList.add('hidden');
+            }
+        };
+
+        window.toggleRightMenu = () => {
+            rightMenuOpen = !rightMenuOpen;
+            if (rightMenuOpen) {
+                DOM.rightPanel.classList.remove('translate-x-full');
+                DOM.mobileOverlay.classList.remove('hidden');
+                if (leftMenuOpen) window.toggleLeftMenu();
+            } else {
+                DOM.rightPanel.classList.add('translate-x-full');
+                if (!leftMenuOpen) DOM.mobileOverlay.classList.add('hidden');
+            }
+        };
+
+        window.closeMenus = () => {
+            if (leftMenuOpen) window.toggleLeftMenu();
+            if (rightMenuOpen) window.toggleRightMenu();
         };
 
         DOM.btnGuest.onclick = () => {
