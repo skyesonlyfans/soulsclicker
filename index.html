@@ -58,20 +58,26 @@
         }
 
         .boss-windup { animation: windup-flash 0.5s infinite alternate; }
+        .boss-mega-windup { animation: mega-windup-flash 0.2s infinite alternate; }
+        
         @keyframes windup-flash {
             0% { filter: drop-shadow(0 0 10px red); }
             100% { filter: drop-shadow(0 0 30px red); transform: scale(1.05); }
+        }
+        @keyframes mega-windup-flash {
+            0% { filter: drop-shadow(0 0 20px #a855f7); }
+            100% { filter: drop-shadow(0 0 50px #c084fc); transform: scale(1.10); }
         }
 
         .you-died-screen {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.85); display: flex; justify-content: center; align-items: center;
-            z-index: 50; opacity: 0; pointer-events: none; transition: opacity 2s ease-in-out;
+            z-index: 50; opacity: 0; pointer-events: none; transition: opacity 1.5s ease-in-out;
         }
         .you-died-screen.active { opacity: 1; pointer-events: auto; }
         .you-died-text {
             font-family: 'Cinzel', serif; color: #8b0000; font-size: 6rem; letter-spacing: 0.2em;
-            text-shadow: 2px 2px 10px black, 0 0 20px red; transform: scale(0.8); transition: transform 3s ease-out;
+            text-shadow: 2px 2px 10px black, 0 0 20px red; transform: scale(0.8); transition: transform 2.5s ease-out;
         }
         .you-died-screen.active .you-died-text { transform: scale(1); }
 
@@ -97,10 +103,29 @@
             10% { background-color: rgba(255,255,255,1); }
             100% { background-color: rgba(255,255,255,0); }
         }
+
+        @keyframes stamina-flash {
+            0%, 100% { background-color: #16a34a; }
+            50% { background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
+        }
+        .stamina-warning {
+            animation: stamina-flash 0.1s 4;
+        }
+
+        .pulsing-skull {
+            display: inline-block;
+            animation: skull-throb var(--pulse-dur, 2s) infinite ease-in-out;
+            transform-origin: center;
+        }
+        @keyframes skull-throb {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(197, 169, 97, 0.2)); }
+            50% { transform: scale(1.3); filter: drop-shadow(0 0 12px rgba(197, 169, 97, 0.9)); }
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden relative">
 
+    <!-- Startup Screen -->
     <div id="startup-screen" class="fixed inset-0 bg-zinc-950 z-[100] flex flex-col items-center justify-center">
         <h1 class="cinzel text-6xl text-[#c5a961] mb-2 tracking-widest drop-shadow-[0_0_15px_rgba(197,169,97,0.5)]">Souls Clicker</h1>
         <p class="text-zinc-500 mb-8 font-serif italic text-sm">developer credit: @skyeprobably on Instagram</p>
@@ -112,12 +137,14 @@
         <p id="auth-status" class="mt-4 text-zinc-400 text-sm hidden">Connecting...</p>
     </div>
 
+    <!-- Vessel Naming Screen -->
     <div id="name-create-screen" class="fixed inset-0 bg-zinc-900 z-[90] hidden flex-col items-center justify-center bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]">
         <h2 class="cinzel text-5xl text-zinc-200 mb-12 border-b border-[#c5a961] pb-4">Name Your Vessel</h2>
         <input type="text" id="player-name-input" class="bg-zinc-800 text-zinc-200 border-2 border-zinc-600 rounded p-4 text-2xl cinzel text-center outline-none focus:border-[#c5a961] mb-8" placeholder="Enter Name" maxlength="20">
         <button onclick="confirmName()" class="py-3 px-8 bg-zinc-800 border border-[#c5a961] text-[#c5a961] hover:bg-zinc-700 transition cinzel text-xl rounded shadow-lg">Awaken</button>
     </div>
 
+    <!-- Pause Screen -->
     <div id="pause-menu" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center backdrop-blur-sm">
         <h2 class="cinzel text-5xl text-zinc-200 mb-12 border-b border-zinc-600 pb-4">PAUSED</h2>
         <div class="flex flex-col gap-6 w-64">
@@ -126,23 +153,16 @@
         </div>
     </div>
 
-    <div id="qte-screen" class="fixed inset-0 bg-black/90 z-[60] hidden flex-col items-center justify-center">
-        <h2 class="cinzel text-4xl text-[#fde047] mb-4 tracking-widest animate-pulse text-center">Cling to Your Souls!</h2>
-        <p class="text-zinc-300 text-xl mb-8 font-mono text-center px-4">Mash [SPACE] or Tap quickly to form a Memory of Lost Souls!</p>
-        <div class="w-3/4 md:w-1/2 h-8 bg-zinc-900 border-2 border-zinc-700 rounded-full overflow-hidden relative">
-            <div id="qte-bar" class="h-full bg-gradient-to-r from-yellow-600 to-yellow-300 w-0 transition-all duration-75"></div>
-        </div>
-        <p id="qte-timer" class="mt-4 text-red-500 text-2xl font-bold font-mono">3.0s</p>
-    </div>
-
+    <!-- Death Screen (Remains for respawn functionality) -->
     <div id="death-screen" class="you-died-screen">
         <div class="flex flex-col items-center p-4 text-center">
             <h1 class="you-died-text text-5xl md:text-8xl">YOU DIED</h1>
-            <p id="death-subtext" class="text-zinc-400 mt-4 text-lg md:text-xl">Souls lost to the bloodstain.</p>
+            <p id="death-subtext" class="text-zinc-400 mt-4 text-lg md:text-xl">Your souls remain at the bloodstain.</p>
             <button onclick="respawn()" class="mt-8 px-6 py-2 border border-zinc-600 hover:border-red-700 hover:text-red-500 transition cinzel text-xl bg-black/50">Awaken at Bonfire</button>
         </div>
     </div>
 
+    <!-- Maiden Modal -->
     <div id="maiden-modal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-4">
         <div class="bg-zinc-900 border border-purple-500/50 p-6 md:p-8 rounded-lg max-w-lg w-full text-center shadow-[0_0_30px_rgba(168,85,247,0.2)]">
             <h2 class="cinzel text-2xl md:text-3xl text-purple-400 mb-6 border-b border-purple-900 pb-2">A Maiden Appears</h2>
@@ -154,17 +174,12 @@
         </div>
     </div>
 
+    <!-- Left Panel: Player Stats -->
     <div class="w-full md:w-[30%] bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col z-10 shadow-[5px_0_15px_rgba(0,0,0,0.5)] overflow-y-auto h-[40vh] md:h-full order-2 md:order-1">
         <h2 class="cinzel text-xl md:text-2xl text-center text-zinc-300 border-b border-zinc-700 pb-2 mb-4 flex justify-between items-center">
             <span><span id="player-name-display">Undead</span> <span id="ng-badge" class="text-purple-500 text-sm hidden">(NG+)</span></span>
             <button onclick="togglePause()" class="text-zinc-500 hover:text-zinc-300" title="Pause (Esc)"><i class="fa-solid fa-bars"></i></button>
         </h2>
-        
-        <div class="bg-zinc-950 p-4 rounded border border-zinc-800 text-center mb-4 relative overflow-hidden group">
-            <div class="text-zinc-400 text-xs md:text-sm cinzel">Souls Held</div>
-            <div id="souls-display" class="text-2xl md:text-3xl cinzel text-[#c5a961] drop-shadow-[0_0_5px_rgba(197,169,97,0.5)]">0</div>
-            <div id="sps-display" class="text-[10px] md:text-xs text-zinc-500 mt-1">0 Souls / sec</div>
-        </div>
 
         <div class="mb-2">
             <div class="flex justify-between text-xs md:text-sm mb-1"><span class="text-red-500 font-bold">HP</span><span id="hp-text">100 / 100</span></div>
@@ -238,6 +253,7 @@
         </div>
     </div>
 
+    <!-- Center Panel: The Game Area -->
     <div id="main-area" class="flex-1 bg-zinc-950 flex flex-col relative overflow-hidden h-[40vh] md:h-full order-1 md:order-2">
         <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
 
@@ -249,8 +265,17 @@
 
             <div id="boss-ui" class="absolute top-16 md:top-24 w-11/12 md:w-3/4 hidden flex-col items-center pointer-events-none">
                 <span id="boss-name" class="cinzel text-red-500 text-lg md:text-2xl mb-1 md:mb-2 drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">Iudex</span>
+                
+                <!-- Sun Knights battlefield tag indicator -->
+                <span id="sun-knights-active-tag" class="text-xs text-yellow-500 font-bold tracking-wider mb-1 hidden"><i class="fa-regular fa-sun animate-spin text-xs mr-1"></i> Sun Knights Assisting!</span>
+                
                 <div class="w-full h-3 md:h-4 bg-zinc-900 border border-zinc-700 relative">
                     <div id="boss-hp-bar" class="h-full bg-red-700 transition-all duration-100 w-full"></div>
+                </div>
+
+                <!-- Parry Click Tracker Overlay -->
+                <div id="parry-indicator" class="hidden border border-purple-500/30 bg-purple-950/20 px-4 py-1 rounded mt-2 cinzel text-purple-300 text-xs md:text-sm font-bold tracking-widest animate-pulse text-center">
+                    💥 SPAM CLICK TO PARRY: <span id="parry-count" class="text-yellow-400">0</span> / <span id="parry-needed">15</span>
                 </div>
             </div>
 
@@ -282,14 +307,15 @@
                 
                 <div id="dodge-container" class="hidden w-full flex flex-col gap-2">
                     <button id="dodge-btn" onclick="dodge('space')" class="w-full bg-zinc-800 border border-zinc-600 text-zinc-200 cinzel py-2 md:py-3 px-4 md:px-6 rounded text-base md:text-lg flex items-center justify-center gap-2 shadow-lg active:bg-zinc-700">
-                        <i class="fa-solid fa-person-running"></i> DODGE
+                        <i class="fa-solid fa-shield-halved"></i> DODGE
                     </button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="w-full md:w-[30%] bg-zinc-900 border-l border-zinc-800 h-[20vh] md:h-full flex flex-col z-10 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] order-3">
+    <!-- Right Panel: Summons & Spells -->
+    <div class="w-full md:w-[30%] bg-zinc-900 border-l border-zinc-800 h-[30vh] md:h-full flex flex-col z-10 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] order-3">
         <div class="flex border-b border-zinc-800">
             <button onclick="switchTab('summons')" id="tab-summons" class="flex-1 py-2 md:py-3 cinzel text-xs md:text-sm text-[#c5a961] border-b-2 border-[#c5a961] bg-zinc-800/50 transition">Summons</button>
             <button onclick="switchTab('spells')" id="tab-spells" class="flex-1 py-2 md:py-3 cinzel text-xs md:text-sm text-zinc-500 hover:text-zinc-300 transition">Spells</button>
@@ -366,6 +392,27 @@
                 </button>
             </div>
         </div>
+
+        <!-- Souls Counter Anchor Layout -->
+        <div class="mt-auto bg-zinc-950 p-4 border-t border-zinc-800 text-center relative overflow-hidden group">
+            <div class="flex justify-center items-center gap-3">
+                <span id="pulsing-skull" class="text-2xl select-none pulsing-skull">💀</span>
+                <div class="text-left">
+                    <div class="text-zinc-400 text-xs md:text-sm cinzel">Souls Held</div>
+                    <div id="souls-display" class="text-2xl md:text-3xl cinzel text-[#c5a961] drop-shadow-[0_0_5px_rgba(197,169,97,0.5)]">0</div>
+                </div>
+            </div>
+            
+            <!-- Soul Embers Display Pane -->
+            <div id="soul-embers-panel" class="hidden mt-2 border border-red-950/40 bg-red-950/5 p-2 rounded text-center">
+                <span class="text-[10px] uppercase tracking-widest text-zinc-500 font-mono">Soul Embers</span>
+                <div id="soul-embers-icons" class="flex justify-center gap-2 mt-1">
+                    <!-- Dynamic rendering of embers -->
+                </div>
+            </div>
+
+            <div id="sps-display" class="text-[10px] md:text-xs text-zinc-500 mt-1">0 Souls / sec</div>
+        </div>
     </div>
 
     <script>
@@ -390,15 +437,21 @@
                 warrior: { qty: 0, sps: 5, baseCost: 500 },
                 knight: { qty: 0, sps: 25, baseCost: 3000 }
             },
-            actionCost: 15, dodgeCost: 25, isDodging: false, dodgeDirection: null, dodgeDuration: 800, mode: 'bonfire',
+            actionCost: 15, dodgeCost: 25, isDodging: false, lastDodgeTime: 0, dodgeDirection: null, dodgeDuration: 800, mode: 'bonfire',
             bloodstain: { active: false, souls: 0, isMemory: false },
             qteActive: false, qteTimer: 0, qteProgress: 0,
-            currentBossIndex: 0,
+            currentBossIndex: 0, bossDeaths: 0, sunQueenDefeated: false,
+            parryClicks: 0, requiredParryClicks: 15,
+            skullSpeedBoost: 0, // Click-dependent tempo parameter
             baseBosses: [
-                { name: "Iudex, The Gatekeeper", maxHp: 500, attackDmg: 30, attackInterval: 4000, windupTime: 1200, icon: "fa-skull", soulsReward: 1000 },
-                { name: "Vordt of the Frost", maxHp: 2500, attackDmg: 55, attackInterval: 3500, windupTime: 1000, icon: "fa-dragon", soulsReward: 5000 },
-                { name: "The Abyss Watchers", maxHp: 8000, attackDmg: 80, attackInterval: 2500, windupTime: 800, icon: "fa-khanda", soulsReward: 20000 },
-                { name: "Lord of Cinder", maxHp: 30000, attackDmg: 150, attackInterval: 2000, windupTime: 700, icon: "fa-crown", soulsReward: 100000 }
+                { name: "Asylum Demon (Tutorial)", maxHp: 350, attackDmg: 20, attackInterval: 5000, windupTime: 2500, icon: "fa-ghost", soulsReward: 500, tutorial: true },
+                { name: "Iudex, The Gatekeeper", maxHp: 900, attackDmg: 30, attackInterval: 4000, windupTime: 1200, icon: "fa-skull", soulsReward: 1000 },
+                { name: "Vordt of the Frost", maxHp: 2800, attackDmg: 55, attackInterval: 3500, windupTime: 1000, icon: "fa-dragon", soulsReward: 5000 },
+                { name: "Sun Queen Goldyna", maxHp: 6500, attackDmg: 70, attackInterval: 3200, windupTime: 1100, icon: "fa-sun", soulsReward: 12000 },
+                { name: "The Abyss Watchers", maxHp: 12000, attackDmg: 90, attackInterval: 2500, windupTime: 800, icon: "fa-khanda", soulsReward: 25000 },
+                { name: "Darkeater Midir", maxHp: 32000, attackDmg: 130, attackInterval: 2800, windupTime: 950, icon: "fa-dragon", soulsReward: 75000 },
+                { name: "Lord of Cinder", maxHp: 75000, attackDmg: 180, attackInterval: 2200, windupTime: 750, icon: "fa-crown", soulsReward: 150000 },
+                { name: "Slave Knight Gael", maxHp: 180000, attackDmg: 250, attackInterval: 1800, windupTime: 650, icon: "fa-gavel", soulsReward: 500000 }
             ],
             activeBosses: [], bossHp: 0, bossTimer: 0, bossState: 'idle',
             maidenType: 0, secretBossActive: false
@@ -416,12 +469,16 @@
             bossUi: document.getElementById('boss-ui'), bossName: document.getElementById('boss-name'), bossHpBar: document.getElementById('boss-hp-bar'), bossIcon: document.getElementById('boss-icon'),
             bossIndicator: document.getElementById('boss-attack-indicator'), swipeLeft: document.getElementById('swipe-left-ind'), swipeRight: document.getElementById('swipe-right-ind'),
             btnChallenge: document.getElementById('btn-challenge'), dodgeContainer: document.getElementById('dodge-container'), btnDodge: document.getElementById('dodge-btn'), btnRest: document.getElementById('btn-rest'),
-            qteScreen: document.getElementById('qte-screen'), qteBar: document.getElementById('qte-bar'), qteTimerTxt: document.getElementById('qte-timer'),
             deathScreen: document.getElementById('death-screen'), deathSub: document.getElementById('death-subtext'),
             ngBadge: document.getElementById('ng-badge'), locName: document.getElementById('location-name'),
             clickZone: document.getElementById('click-zone'), mainArea: document.getElementById('main-area'),
             targetMaiden: document.getElementById('target-maiden'), maidenModal: document.getElementById('maiden-modal'), maidenDialogue: document.getElementById('maiden-dialogue'),
-            pauseMenu: document.getElementById('pause-menu')
+            pauseMenu: document.getElementById('pause-menu'),
+            parryIndicator: document.getElementById('parry-indicator'), parryCount: document.getElementById('parry-count'), parryNeeded: document.getElementById('parry-needed'),
+            sunKnightsTag: document.getElementById('sun-knights-active-tag'),
+            pulsingSkull: document.getElementById('pulsing-skull'),
+            soulEmbersIcons: document.getElementById('soul-embers-icons'),
+            soulEmbersPanel: document.getElementById('soul-embers-panel')
         };
 
         DOM.btnGuest.onclick = () => {
@@ -475,11 +532,21 @@
             lastTime = currentTime;
 
             if (!state.isPaused) {
-                if (!state.qteActive && state.hp > 0) {
+                // Decay the manual action surge tempo modifier smoothly
+                if (state.skullSpeedBoost > 0) {
+                    state.skullSpeedBoost = Math.max(0, state.skullSpeedBoost - dt * 2.5);
+                }
+
+                if (state.hp > 0) {
                     updatePassive(dt);
                     updateBoss(dt * 1000);
-                } else if (state.qteActive) {
-                    updateQTE(dt * 1000);
+                    
+                    // Sun Knights battle loop assistance mechanism
+                    if (state.mode === 'boss' && state.sunQueenDefeated && state.summons.knight.qty > 0) {
+                        const knightDmg = state.summons.knight.qty * state.summons.knight.sps * dt * state.permanentMult;
+                        state.bossHp -= knightDmg;
+                        if (state.bossHp <= 0) defeatBoss();
+                    }
                 }
 
                 if (state.powerupTimer > 0) {
@@ -547,6 +614,17 @@
             setTimeout(() => el.remove(), duration * 1000);
         }
 
+        function triggerFailedDodgeFeedback() {
+            // Shake and flash the stamina bar violently
+            DOM.stamBar.classList.add('stamina-warning');
+            setTimeout(() => {
+                DOM.stamBar.classList.remove('stamina-warning');
+            }, 450);
+
+            // Display floating feedback overlay over action screen
+            createFloatingText(window.innerWidth / 2, window.innerHeight / 2 + 50, "❌ DODGE FAILED: NO STAMINA", "#ef4444", 1.5, -40);
+        }
+
         window.gatherSouls = (e, isSpell = false) => {
             if (state.isPaused || state.hp <= 0) return;
             if (!isSpell) {
@@ -556,17 +634,38 @@
             
             const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
             state.souls += gain;
+
+            // Surge pulsing speed dynamically with player interaction
+            state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
             
             let clientX = window.innerWidth/2;
             let clientY = window.innerHeight/2;
             if(e && e.clientX) { clientX = e.clientX; clientY = e.clientY; }
-            else if(e && e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
             
             createFloatingText(clientX, clientY, `+${Math.floor(gain)}`, '#c5a961');
         };
 
         window.attackBoss = (e, isSpell = false) => {
             if (state.isPaused || state.hp <= 0) return;
+            
+            let clientX = window.innerWidth/2;
+            let clientY = window.innerHeight/2;
+            if(e && e.clientX) { clientX = e.clientX; clientY = e.clientY; }
+
+            // Intercept standard loop if boss is charging a Mega Attack
+            if (state.bossState === 'windup_mega') {
+                state.parryClicks++;
+                DOM.parryCount.textContent = state.parryClicks;
+                createFloatingText(clientX, clientY, "⚡ PARRY!", "#a855f7", 0.4, -40);
+                
+                // Allow hits to continue chunking basic damage alongside registering values
+                const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
+                state.bossHp -= dmg;
+                state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.5);
+                if (state.bossHp <= 0) defeatBoss();
+                return;
+            }
+
             if (!isSpell) {
                 if (state.stamina < state.actionCost) return;
                 state.stamina -= state.actionCost;
@@ -574,12 +673,8 @@
             
             const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
             state.bossHp -= dmg;
+            state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
             
-            let clientX = window.innerWidth/2;
-            let clientY = window.innerHeight/2;
-            if(e && e.clientX) { clientX = e.clientX; clientY = e.clientY; }
-            else if(e && e.touches && e.touches.length > 0) { clientX = e.touches[0].clientX; clientY = e.touches[0].clientY; }
-
             createFloatingText(clientX, clientY, Math.floor(dmg), '#ffffff');
             
             DOM.targetBoss.classList.remove('shake');
@@ -590,19 +685,20 @@
         };
 
         window.dodge = (direction = 'space') => {
-            if (state.mode !== 'boss' || state.isPaused || state.hp <= 0) return;
-            
-            if (state.isDodging) {
-                if (state.stamina < state.dodgeCost * 1.5) return;
-                state.stamina -= state.dodgeCost * 1.5;
-                createFloatingText(window.innerWidth/2, window.innerHeight/2, "DOUBLE DODGE", "#60a5fa");
-            } else {
-                if (state.stamina < state.dodgeCost) return;
-                state.stamina -= state.dodgeCost;
+            if (state.mode !== 'boss' || state.isPaused || state.hp <= 0 || state.bossState === 'windup_mega') return;
+            const now = performance.now();
+
+            if (state.lastDodgeTime && now - state.lastDodgeTime < 1000) return;
+            if (state.stamina < state.dodgeCost) {
+                triggerFailedDodgeFeedback();
+                return;
             }
             
+            state.stamina -= state.dodgeCost;
             state.isDodging = true;
             state.dodgeDirection = direction;
+            state.lastDodgeTime = now;
+            
             DOM.btnDodge.classList.add('dodging');
             
             clearTimeout(dodgeTimeout);
@@ -685,29 +781,48 @@
             if (state.bossState === 'idle') {
                 if (state.bossTimer >= boss.attackInterval) {
                     const rand = Math.random();
-                    if (rand < 0.3) state.bossState = 'windup_left';
-                    else if (rand < 0.6) state.bossState = 'windup_right';
-                    else state.bossState = 'windup_space';
+                    if (boss.tutorial || rand < 0.30) {
+                        state.bossState = 'windup_mega';
+                        state.parryClicks = 0;
+                        state.requiredParryClicks = 12 + (state.ngPlus * 3) + (state.currentBossIndex * 2);
+                        DOM.parryCount.textContent = 0;
+                        DOM.parryNeeded.textContent = state.requiredParryClicks;
+                        DOM.parryIndicator.classList.remove('hidden');
+                        DOM.targetBoss.classList.add('boss-mega-windup');
+                    } else {
+                        if (rand < 0.65) state.bossState = 'windup_left';
+                        else state.bossState = 'windup_right';
+                        DOM.targetBoss.classList.add('boss-windup');
+                    }
                     
                     state.bossTimer = 0;
                     DOM.bossIndicator.style.opacity = '1';
                     DOM.bossIndicator.style.transform = 'scale(0.8)';
-                    DOM.targetBoss.classList.add('boss-windup');
                     
                     if (state.bossState === 'windup_left') DOM.swipeLeft.classList.remove('hidden');
                     if (state.bossState === 'windup_right') DOM.swipeRight.classList.remove('hidden');
                 }
             } else if (state.bossState.startsWith('windup')) {
-                const progress = state.bossTimer / boss.windupTime;
+                let actualWindup = boss.windupTime;
+                
+                // Give parries (mega attacks) more time, especially in the early game
+                if (state.bossState === 'windup_mega') {
+                    const effectiveIndex = state.secretBossActive ? 7 : (state.currentBossIndex + (state.ngPlus * 5));
+                    const earlyGameCushion = Math.max(0, 2000 - (effectiveIndex * 300));
+                    actualWindup += 800 + earlyGameCushion;
+                }
+
+                const progress = state.bossTimer / actualWindup;
                 DOM.bossIndicator.style.transform = `scale(${1.5 - progress * 0.7})`;
 
-                if (state.bossTimer >= boss.windupTime) {
+                if (state.bossTimer >= actualWindup) {
                     const requiredDodge = state.bossState.split('_')[1];
                     state.bossState = 'idle';
                     state.bossTimer = 0;
                     DOM.bossIndicator.style.opacity = '0';
-                    DOM.targetBoss.classList.remove('boss-windup');
+                    DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
                     DOM.swipeLeft.classList.add('hidden'); DOM.swipeRight.classList.add('hidden');
+                    DOM.parryIndicator.classList.add('hidden');
                     
                     bossStrike(boss.attackDmg, requiredDodge);
                 }
@@ -715,8 +830,26 @@
         }
 
         function bossStrike(damage, requiredDodge) {
-            if (state.isDodging && (state.dodgeDirection === requiredDodge || state.dodgeDirection === 'space' && requiredDodge === 'space')) {
-                createFloatingText(window.innerWidth/2, window.innerHeight/2, "DODGED", "#3b82f6");
+            const boss = state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex];
+            let dodged = false;
+            
+            if (requiredDodge === 'mega') {
+                // If parry requirements met, completely negate damage and counter effectively
+                if (state.parryClicks >= state.requiredParryClicks) {
+                    dodged = true;
+                    const counterDamage = (boss.maxHp * 0.15) + ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult * 10);
+                    state.bossHp -= counterDamage;
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, `💥 PARRY COUNTER! -${Math.floor(counterDamage).toLocaleString()}`, "#fde047", 1.8, -60);
+                    if (state.bossHp <= 0) { defeatBoss(); return; }
+                }
+            } else {
+                if (state.isDodging && (state.dodgeDirection === requiredDodge || state.dodgeDirection === 'space')) {
+                    dodged = true;
+                }
+            }
+
+            if (dodged) {
+                if (requiredDodge !== 'mega') createFloatingText(window.innerWidth/2, window.innerHeight/2, "DODGED", "#3b82f6");
             } else {
                 state.hp -= damage;
                 DOM.mainArea.classList.remove('shake');
@@ -735,10 +868,18 @@
             state.bossState = 'idle';
             DOM.bossName.textContent = boss.name;
             DOM.bossIcon.className = `fa-solid ${boss.icon}`;
+            
+            if (state.sunQueenDefeated) {
+                DOM.sunKnightsTag.classList.remove('hidden');
+            } else {
+                DOM.sunKnightsTag.classList.add('hidden');
+            }
+            
             setMode('boss');
         };
 
         function defeatBoss() {
+            state.bossDeaths = 0;
             if (state.secretBossActive) {
                 state.souls += state.tempBoss.soulsReward * state.permanentMult;
                 state.secretBossActive = false;
@@ -750,6 +891,13 @@
 
             const boss = state.activeBosses[state.currentBossIndex];
             state.souls += boss.soulsReward * state.permanentMult;
+            
+            // Check progression unlock at Sun Queen Goldyna (Boss 4 index 3)
+            if (state.currentBossIndex === 3) {
+                state.sunQueenDefeated = true;
+                createFloatingText(window.innerWidth/2, window.innerHeight/2 - 40, "☀️ SUN KNIGHTS UNLOCKED FOR BOSS ENCOUNTERS!", "#facc15", 4, -40);
+            }
+
             state.currentBossIndex++;
             setMode('bonfire');
             
@@ -767,53 +915,34 @@
 
         function die() {
             state.hp = 0;
-            state.qteActive = true;
-            state.qteProgress = 0;
-            state.qteTimer = 3000;
-            DOM.qteScreen.classList.remove('hidden');
-            DOM.qteScreen.classList.add('flex');
-            DOM.qteBar.style.width = '0%';
-        }
+            DOM.parryIndicator.classList.add('hidden');
 
-        function updateQTE(dtMs) {
-            state.qteTimer -= dtMs;
-            DOM.qteTimerTxt.textContent = (Math.max(0, state.qteTimer)/1000).toFixed(1) + "s";
-            
-            if(state.qteProgress > 0) state.qteProgress -= (dtMs * 0.05);
-            DOM.qteBar.style.width = `${Math.min(100, Math.max(0, state.qteProgress))}%`;
-
-            if (state.qteTimer <= 0) {
-                resolveQTE(false);
-            }
-        }
-
-        window.handleQTEInput = () => {
-            if (!state.qteActive || state.isPaused) return;
-            state.qteProgress += 15;
-            if (state.qteProgress >= 100) {
-                resolveQTE(true);
-            }
-        };
-
-        function resolveQTE(success) {
-            state.qteActive = false;
-            DOM.qteScreen.classList.add('hidden');
-            DOM.qteScreen.classList.remove('flex');
-            
-            state.bloodstain.active = true;
-            state.bloodstain.souls = Math.floor(state.souls);
-            state.souls = 0;
-            
-            if (success) {
-                state.bloodstain.isMemory = true;
-                DOM.deathSub.textContent = "A golden memory remains.";
-                DOM.deathSub.classList.replace('text-zinc-400', 'text-yellow-400');
+            if (state.mode === 'boss') {
+                state.bossDeaths++;
+                if (state.bossDeaths >= 3) {
+                    // Complete loss of all souls if deaths reach 3 consecutive attempts
+                    state.souls = 0;
+                    state.bloodstain.active = false;
+                    state.bloodstain.souls = 0;
+                    state.bossDeaths = 0; // Reset counter for next attempt sequence
+                    DOM.deathSub.innerHTML = `<span class="text-red-500 font-bold block mb-1">YOUR SPIRIT HAS SHATTERED</span> 3 defeats to the same boss. All held souls are permanently lost.`;
+                } else {
+                    // Standard bloodstain drop, warning indicating remaining embers
+                    state.bloodstain.active = true;
+                    state.bloodstain.souls = Math.floor(state.souls);
+                    state.bloodstain.isMemory = false;
+                    state.souls = 0;
+                    DOM.deathSub.innerHTML = `<span class="text-zinc-400">Your souls remain at your bloodstain.</span><br><span class="text-red-400 font-mono mt-2 block">Embers: ${3 - state.bossDeaths} of 3 remaining</span>`;
+                }
             } else {
+                // Out-of-battle deaths (Secret bosses, etc.)
+                state.bloodstain.active = true;
+                state.bloodstain.souls = Math.floor(state.souls);
                 state.bloodstain.isMemory = false;
-                DOM.deathSub.textContent = "Souls lost to the bloodstain.";
-                DOM.deathSub.classList.replace('text-yellow-400', 'text-zinc-400');
+                state.souls = 0;
+                DOM.deathSub.innerHTML = `<span class="text-zinc-400">Souls lost to the bloodstain.</span>`;
             }
-            
+
             DOM.deathScreen.classList.add('active');
             setMode('bonfire');
             saveState();
@@ -849,20 +978,18 @@
                 DOM.chestStatus.textContent = "Empty";
             }
 
-            if (Math.random() < 0.3) {
-                spawnMaiden();
-            } else {
-                DOM.targetMaiden.classList.add('hidden');
-            }
+            if (Math.random() < 0.35) spawnMaiden();
+            else DOM.targetMaiden.classList.add('hidden');
             saveState();
         };
 
         function spawnMaiden() {
             DOM.targetMaiden.classList.remove('hidden');
             const r = Math.random();
-            if (r < 0.33) state.maidenType = 1;
-            else if (r < 0.66) state.maidenType = 2;
-            else state.maidenType = 3;
+            if (r < 0.25) state.maidenType = 1;
+            else if (r < 0.50) state.maidenType = 2;
+            else if (r < 0.75) state.maidenType = 3;
+            else state.maidenType = 4;
         }
 
         window.interactMaiden = () => {
@@ -876,6 +1003,8 @@
                 DOM.maidenDialogue.textContent = `"Sacrifice half of your current souls, and I shall permanently magnify your strength."`;
             } else if (state.maidenType === 3) {
                 DOM.maidenDialogue.textContent = `"A shadow of the Old Lords slumbers near. Shall I awaken it for you to challenge?"`;
+            } else if (state.maidenType === 4) {
+                DOM.maidenDialogue.textContent = `"A fallen warrior left these memories behind. Take them." (Grants massive bulk souls)`;
             }
         };
 
@@ -896,13 +1025,17 @@
                 createFloatingText(window.innerWidth/2, window.innerHeight/2, "STRENGTHENED", "#c5a961");
             } else if (state.maidenType === 3) {
                 state.secretBossActive = true;
-                state.tempBoss = { name: "Nameless Shade", maxHp: 15000 * Math.pow(3, state.ngPlus), attackDmg: 200 * Math.pow(3, state.ngPlus), attackInterval: 1500, windupTime: 500, icon: "fa-ghost", soulsReward: 50000 * Math.pow(5, state.ngPlus) };
+                state.tempBoss = { name: "Nameless Shade", maxHp: 22000 * Math.pow(3, state.ngPlus), attackDmg: 200 * Math.pow(3, state.ngPlus), attackInterval: 1500, windupTime: 500, icon: "fa-ghost", soulsReward: 50000 * Math.pow(5, state.ngPlus) };
                 state.bossHp = state.tempBoss.maxHp;
                 state.bossTimer = 0;
                 state.bossState = 'idle';
                 DOM.bossName.textContent = state.tempBoss.name;
                 DOM.bossIcon.className = `fa-solid ${state.tempBoss.icon}`;
                 setMode('boss');
+            } else if (state.maidenType === 4) {
+                let gift = 5000 * Math.pow(3, state.ngPlus) * state.permanentMult;
+                state.souls += gift;
+                createFloatingText(window.innerWidth/2, window.innerHeight/2, `+${gift} SOULS`, "#c5a961", 2);
             }
             saveState();
         };
@@ -918,8 +1051,10 @@
                 DOM.targetBonfire.classList.remove('hidden'); DOM.targetBoss.classList.add('hidden');
                 DOM.bossUi.classList.add('hidden'); DOM.btnChallenge.classList.remove('hidden');
                 DOM.dodgeContainer.classList.add('hidden'); DOM.btnRest.classList.remove('opacity-50', 'pointer-events-none');
-                DOM.bossIndicator.style.opacity = '0'; DOM.targetBoss.classList.remove('boss-windup');
+                DOM.bossIndicator.style.opacity = '0'; DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
                 DOM.swipeLeft.classList.add('hidden'); DOM.swipeRight.classList.add('hidden');
+                DOM.parryIndicator.classList.add('hidden');
+                DOM.sunKnightsTag.classList.add('hidden');
             } else {
                 DOM.targetBonfire.classList.add('hidden'); DOM.targetBoss.classList.remove('hidden');
                 DOM.bossUi.classList.remove('hidden'); DOM.bossUi.classList.add('flex');
@@ -991,7 +1126,7 @@
         };
 
         window.togglePause = () => {
-            if(state.hp <= 0 || state.qteActive) return;
+            if(state.hp <= 0) return;
             state.isPaused = !state.isPaused;
             if (state.isPaused) {
                 DOM.pauseMenu.classList.remove('hidden');
@@ -1010,7 +1145,7 @@
 
         function saveState() {
             try {
-                localStorage.setItem('soulsClickerSave', JSON.stringify({
+                localStorage.setItem('soulsClickerSave_v3', JSON.stringify({
                     playerName: state.playerName, souls: state.souls, ngPlus: state.ngPlus,
                     levels: state.levels, weaponIndex: state.weaponIndex, maxEstus: state.maxEstus,
                     summons: {
@@ -1018,14 +1153,16 @@
                         warrior: state.summons.warrior.qty,
                         knight: state.summons.knight.qty
                     },
-                    permanentMult: state.permanentMult
+                    permanentMult: state.permanentMult,
+                    bossDeaths: state.bossDeaths,
+                    sunQueenDefeated: state.sunQueenDefeated
                 }));
             } catch(e) { console.error("Save failed", e); }
         }
 
         function loadSaveState() {
             try {
-                const saved = localStorage.getItem('soulsClickerSave');
+                const saved = localStorage.getItem('soulsClickerSave_v3');
                 if (saved) {
                     const data = JSON.parse(saved);
                     state.playerName = data.playerName || "Undead";
@@ -1036,6 +1173,8 @@
                     state.maxEstus = data.maxEstus || 3;
                     state.estus = state.maxEstus;
                     state.permanentMult = data.permanentMult || 1;
+                    state.bossDeaths = data.bossDeaths || 0;
+                    state.sunQueenDefeated = data.sunQueenDefeated || false;
                     
                     if(data.summons) {
                         state.summons.hollow.qty = data.summons.hollow || 0;
@@ -1043,7 +1182,6 @@
                         state.summons.knight.qty = data.summons.knight || 0;
                     }
 
-                    // Recalculate derived stats
                     state.maxHp = 100 + ((state.levels.vigor - 1) * 20);
                     state.hp = state.maxHp;
                     state.maxStamina = 100 + ((state.levels.endurance - 1) * 15);
@@ -1073,6 +1211,30 @@
             DOM.stamBar.style.width = `${(state.stamina / state.maxStamina) * 100}%`;
             
             DOM.estusText.textContent = state.estus;
+            
+            // Dynamic scale formula for the pulsing Skull Emoji
+            const passiveSPS = getSPS() * state.permanentMult;
+            const rateIndex = passiveSPS + (state.skullSpeedBoost * 100);
+            const speedFactor = 1 + (rateIndex / 50);
+            const computedDuration = Math.max(0.12, 3 / speedFactor);
+            DOM.pulsingSkull.style.setProperty('--pulse-dur', `${computedDuration}s`);
+
+            // Embers UI Configuration for Boss Mode
+            if (state.mode === 'boss') {
+                DOM.soulEmbersPanel.classList.remove('hidden');
+                const remaining = Math.max(0, 3 - state.bossDeaths);
+                let iconsHTML = '';
+                for (let i = 0; i < 3; i++) {
+                    if (i < remaining) {
+                        iconsHTML += '<span class="ember-icon text-red-500 text-lg animate-pulse select-none">🔥</span>';
+                    } else {
+                        iconsHTML += '<span class="ember-icon text-zinc-700 text-lg opacity-40 select-none">💀</span>';
+                    }
+                }
+                DOM.soulEmbersIcons.innerHTML = iconsHTML;
+            } else {
+                DOM.soulEmbersPanel.classList.add('hidden');
+            }
             
             if (state.mode === 'boss') {
                 const boss = state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex];
@@ -1131,20 +1293,18 @@
 
         window.addEventListener('keydown', (e) => {
             if(state.isPaused && e.key !== 'Escape') return;
-
-            if (state.qteActive && e.code === 'Space') {
-                e.preventDefault();
-                handleQTEInput();
-                return;
-            }
             if (state.hp <= 0) return;
 
             if (e.key === 'Escape') {
                 togglePause();
             } else if (e.code === 'Space') {
                 e.preventDefault();
-                if (state.mode === 'boss') dodge('space');
-                else gatherSouls({clientX: window.innerWidth/2, clientY: window.innerHeight/2});
+                if (state.mode === 'boss') {
+                    if(state.bossState === 'windup_mega') attackBoss({clientX: window.innerWidth/2, clientY: window.innerHeight/2});
+                    else dodge('space');
+                } else {
+                    gatherSouls({clientX: window.innerWidth/2, clientY: window.innerHeight/2});
+                }
             } else if (e.key === 'ArrowLeft' && state.mode === 'boss') {
                 e.preventDefault(); dodge('left');
             } else if (e.key === 'ArrowRight' && state.mode === 'boss') {
@@ -1156,15 +1316,10 @@
             }
         });
         
-        DOM.qteScreen.addEventListener('touchstart', (e) => {
-            e.preventDefault();
-            handleQTEInput();
-        });
-        
         let touchStartX = 0;
         DOM.clickZone.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive: true});
         DOM.clickZone.addEventListener('touchend', e => {
-            if(state.mode !== 'boss') return;
+            if(state.mode !== 'boss' || state.bossState === 'windup_mega') return;
             let touchEndX = e.changedTouches[0].clientX;
             let diff = touchEndX - touchStartX;
             if(Math.abs(diff) > 50) {
