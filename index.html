@@ -255,10 +255,15 @@
     <div id="main-area" class="flex-1 bg-zinc-950 flex flex-col relative overflow-hidden h-full order-1 md:order-2">
         <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
 
-        <!-- Mobile Menu Toggle Buttons -->
+        <!-- Mobile Menu & Pause Toggle Buttons -->
         <button onclick="toggleLeftMenu()" class="absolute top-4 left-4 z-30 md:hidden w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-600 text-[#c5a961] shadow-lg flex items-center justify-center hover:bg-zinc-700 transition">
             <i class="fa-solid fa-user-shield text-xl"></i>
         </button>
+        
+        <button onclick="togglePause()" class="absolute top-4 left-1/2 -translate-x-1/2 z-30 md:hidden w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-600 text-zinc-300 shadow-lg flex items-center justify-center hover:bg-zinc-700 transition">
+            <i class="fa-solid fa-pause text-xl"></i>
+        </button>
+
         <button onclick="toggleRightMenu()" class="absolute top-4 right-4 z-30 md:hidden w-12 h-12 rounded-full bg-zinc-800 border-2 border-zinc-600 text-purple-400 shadow-lg flex items-center justify-center hover:bg-zinc-700 transition">
             <i class="fa-solid fa-book-skull text-xl"></i>
         </button>
@@ -283,7 +288,7 @@
                 </div>
             </div>
 
-            <div id="click-zone" class="relative w-48 h-48 md:w-80 md:h-80 flex justify-center items-center touch-none">
+            <div id="click-zone" class="relative w-48 h-48 md:w-80 md:h-80 flex justify-center items-center touch-none mt-24 md:mt-0">
                 <div id="target-bonfire" class="text-7xl md:text-9xl bonfire-anim absolute" onclick="gatherSouls(event)">
                     <i class="fa-solid fa-fire"></i>
                 </div>
@@ -292,7 +297,7 @@
                     <i class="fa-solid fa-person-praying"></i>
                 </div>
 
-                <div id="target-boss" class="text-[6rem] md:text-[10rem] text-zinc-300 hidden cursor-pointer transition-transform duration-100 hover:scale-105 absolute drop-shadow-[0_10px_15px_rgba(0,0,0,1)]" onclick="attackBoss(event)">
+                <div id="target-boss" class="text-[9rem] md:text-[10rem] text-zinc-300 hidden cursor-pointer transition-transform duration-100 hover:scale-105 absolute drop-shadow-[0_10px_15px_rgba(0,0,0,1)]" onclick="attackBoss(event)">
                     <i id="boss-icon" class="fa-solid fa-skull"></i>
                     <div id="boss-attack-indicator" class="absolute inset-0 rounded-full border-4 border-red-600 scale-150 opacity-0 transition-all pointer-events-none"></div>
                 </div>
@@ -303,6 +308,23 @@
             </div>
 
             <div class="mt-auto md:mt-20 flex flex-col gap-2 w-full max-w-sm justify-center items-center z-20">
+                
+                <!-- Mobile Boss HUD -->
+                <div id="mobile-boss-hud" class="hidden md:hidden w-full flex-col gap-2 mb-2 p-3 bg-zinc-900/80 border border-zinc-700 rounded-lg backdrop-blur-sm shadow-lg pointer-events-none">
+                    <div class="w-full">
+                        <div class="flex justify-between text-xs mb-1"><span class="text-red-500 font-bold drop-shadow-md">HP</span><span id="mobile-hp-text" class="drop-shadow-md font-bold">100 / 100</span></div>
+                        <div class="w-full h-3 bg-zinc-800 rounded border border-zinc-950 overflow-hidden">
+                            <div id="mobile-hp-bar" class="h-full bg-red-700 w-full transition-all duration-200"></div>
+                        </div>
+                    </div>
+                    <div class="w-full">
+                        <div class="flex justify-between text-xs mb-1"><span class="text-green-500 font-bold drop-shadow-md">Stamina</span><span id="mobile-stam-text" class="drop-shadow-md font-bold">100 / 100</span></div>
+                        <div class="w-full h-3 bg-zinc-800 rounded border border-zinc-950 overflow-hidden">
+                            <div id="mobile-stam-bar" class="h-full bg-green-600 w-full transition-all duration-100"></div>
+                        </div>
+                    </div>
+                </div>
+
                 <button id="btn-challenge" onclick="challengeBoss()" class="w-full bg-zinc-900 border border-red-900/50 hover:border-red-700 text-zinc-400 hover:text-red-400 transition cinzel py-3 md:py-3 px-4 md:px-6 rounded tracking-wider shadow-[0_0_10px_rgba(139,0,0,0.1)] hover:shadow-[0_0_15px_rgba(139,0,0,0.3)] text-base">
                     Traverse the Fog (Boss)
                 </button>
@@ -497,7 +519,8 @@
             pulsingSkull: document.getElementById('pulsing-skull'),
             soulEmbersIcons: document.getElementById('soul-embers-icons'),
             soulEmbersPanel: document.getElementById('soul-embers-panel'),
-            leftPanel: document.getElementById('left-panel'), rightPanel: document.getElementById('right-panel'), mobileOverlay: document.getElementById('mobile-overlay')
+            leftPanel: document.getElementById('left-panel'), rightPanel: document.getElementById('right-panel'), mobileOverlay: document.getElementById('mobile-overlay'),
+            mobileBossHud: document.getElementById('mobile-boss-hud'), mobileHpText: document.getElementById('mobile-hp-text'), mobileHpBar: document.getElementById('mobile-hp-bar'), mobileStamText: document.getElementById('mobile-stam-text'), mobileStamBar: document.getElementById('mobile-stam-bar')
         };
 
         window.toggleLeftMenu = () => {
@@ -661,8 +684,11 @@
 
         function triggerFailedDodgeFeedback() {
             DOM.stamBar.classList.add('stamina-warning');
+            if(DOM.mobileStamBar) DOM.mobileStamBar.classList.add('stamina-warning');
+            
             setTimeout(() => {
                 DOM.stamBar.classList.remove('stamina-warning');
+                if(DOM.mobileStamBar) DOM.mobileStamBar.classList.remove('stamina-warning');
             }, 450);
 
             createFloatingText(window.innerWidth / 2, window.innerHeight / 2 + 50, "❌ DODGE FAILED: NO STAMINA", "#ef4444", 1.5, -40);
@@ -1109,12 +1135,20 @@
                 DOM.bossIndicator.style.opacity = '0'; DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
                 DOM.parryIndicator.classList.add('hidden');
                 DOM.sunKnightsTag.classList.add('hidden');
+                if (DOM.mobileBossHud) {
+                    DOM.mobileBossHud.classList.add('hidden');
+                    DOM.mobileBossHud.classList.remove('flex');
+                }
             } else {
                 DOM.targetBonfire.classList.add('hidden'); DOM.targetBoss.classList.remove('hidden');
                 DOM.bossUi.classList.remove('hidden'); DOM.bossUi.classList.add('flex');
                 DOM.btnChallenge.classList.add('hidden'); DOM.dodgeContainer.classList.remove('hidden'); DOM.dodgeContainer.classList.add('flex');
                 DOM.btnRest.classList.add('opacity-50', 'pointer-events-none');
                 DOM.targetMaiden.classList.add('hidden');
+                if (DOM.mobileBossHud) {
+                    DOM.mobileBossHud.classList.remove('hidden');
+                    DOM.mobileBossHud.classList.add('flex');
+                }
             }
         }
 
@@ -1301,9 +1335,13 @@
             
             DOM.hpText.textContent = `${Math.ceil(state.hp)} / ${state.maxHp}`;
             DOM.hpBar.style.width = `${(state.hp / state.maxHp) * 100}%`;
+            if (DOM.mobileHpText) DOM.mobileHpText.textContent = `${Math.ceil(state.hp)} / ${state.maxHp}`;
+            if (DOM.mobileHpBar) DOM.mobileHpBar.style.width = `${(state.hp / state.maxHp) * 100}%`;
             
             DOM.stamText.textContent = `${Math.floor(state.stamina)} / ${state.maxStamina}`;
             DOM.stamBar.style.width = `${(state.stamina / state.maxStamina) * 100}%`;
+            if (DOM.mobileStamText) DOM.mobileStamText.textContent = `${Math.floor(state.stamina)} / ${state.maxStamina}`;
+            if (DOM.mobileStamBar) DOM.mobileStamBar.style.width = `${(state.stamina / state.maxStamina) * 100}%`;
             
             DOM.estusText.textContent = state.estus;
             
