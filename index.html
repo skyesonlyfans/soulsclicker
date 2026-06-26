@@ -91,9 +91,6 @@
         .btn-upgrade:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         
         #dodge-btn.dodging { background-color: #3b82f6 !important; box-shadow: 0 0 20px #3b82f6; color: white; border-color: #60a5fa; }
-        
-        .swipe-indicator { position: absolute; font-size: 4rem; color: rgba(255,0,0,0.7); animation: swipe-pulse 0.5s infinite alternate; }
-        @keyframes swipe-pulse { from { opacity: 0.5; transform: scale(0.9); } to { opacity: 1; transform: scale(1.1); } }
 
         .powerup-glow { box-shadow: 0 0 20px #a855f7 inset; border-color: #d8b4fe !important; }
 
@@ -125,7 +122,6 @@
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden relative">
 
-    <!-- Startup Screen -->
     <div id="startup-screen" class="fixed inset-0 bg-zinc-950 z-[100] flex flex-col items-center justify-center">
         <h1 class="cinzel text-6xl text-[#c5a961] mb-2 tracking-widest drop-shadow-[0_0_15px_rgba(197,169,97,0.5)]">Souls Clicker</h1>
         <p class="text-zinc-500 mb-8 font-serif italic text-sm">developer credit: @skyeprobably on Instagram</p>
@@ -137,14 +133,12 @@
         <p id="auth-status" class="mt-4 text-zinc-400 text-sm hidden">Connecting...</p>
     </div>
 
-    <!-- Vessel Naming Screen -->
     <div id="name-create-screen" class="fixed inset-0 bg-zinc-900 z-[90] hidden flex-col items-center justify-center bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]">
         <h2 class="cinzel text-5xl text-zinc-200 mb-12 border-b border-[#c5a961] pb-4">Name Your Vessel</h2>
         <input type="text" id="player-name-input" class="bg-zinc-800 text-zinc-200 border-2 border-zinc-600 rounded p-4 text-2xl cinzel text-center outline-none focus:border-[#c5a961] mb-8" placeholder="Enter Name" maxlength="20">
         <button onclick="confirmName()" class="py-3 px-8 bg-zinc-800 border border-[#c5a961] text-[#c5a961] hover:bg-zinc-700 transition cinzel text-xl rounded shadow-lg">Awaken</button>
     </div>
 
-    <!-- Pause Screen -->
     <div id="pause-menu" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center backdrop-blur-sm">
         <h2 class="cinzel text-5xl text-zinc-200 mb-12 border-b border-zinc-600 pb-4">PAUSED</h2>
         <div class="flex flex-col gap-6 w-64">
@@ -153,7 +147,6 @@
         </div>
     </div>
 
-    <!-- Death Screen (Remains for respawn functionality) -->
     <div id="death-screen" class="you-died-screen">
         <div class="flex flex-col items-center p-4 text-center">
             <h1 class="you-died-text text-5xl md:text-8xl">YOU DIED</h1>
@@ -162,7 +155,6 @@
         </div>
     </div>
 
-    <!-- Maiden Modal -->
     <div id="maiden-modal" class="fixed inset-0 bg-black/80 z-[80] hidden flex-col items-center justify-center p-4">
         <div class="bg-zinc-900 border border-purple-500/50 p-6 md:p-8 rounded-lg max-w-lg w-full text-center shadow-[0_0_30px_rgba(168,85,247,0.2)]">
             <h2 class="cinzel text-2xl md:text-3xl text-purple-400 mb-6 border-b border-purple-900 pb-2">A Maiden Appears</h2>
@@ -174,7 +166,6 @@
         </div>
     </div>
 
-    <!-- Left Panel: Player Stats -->
     <div class="w-full md:w-[30%] bg-zinc-900 border-r border-zinc-800 p-4 flex flex-col z-10 shadow-[5px_0_15px_rgba(0,0,0,0.5)] overflow-y-auto h-[40vh] md:h-full order-2 md:order-1">
         <h2 class="cinzel text-xl md:text-2xl text-center text-zinc-300 border-b border-zinc-700 pb-2 mb-4 flex justify-between items-center">
             <span><span id="player-name-display">Undead</span> <span id="ng-badge" class="text-purple-500 text-sm hidden">(NG+)</span></span>
@@ -253,7 +244,6 @@
         </div>
     </div>
 
-    <!-- Center Panel: The Game Area -->
     <div id="main-area" class="flex-1 bg-zinc-950 flex flex-col relative overflow-hidden h-[40vh] md:h-full order-1 md:order-2">
         <div class="absolute inset-0 opacity-10 pointer-events-none" style="background-image: url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'1\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
 
@@ -266,14 +256,12 @@
             <div id="boss-ui" class="absolute top-16 md:top-24 w-11/12 md:w-3/4 hidden flex-col items-center pointer-events-none">
                 <span id="boss-name" class="cinzel text-red-500 text-lg md:text-2xl mb-1 md:mb-2 drop-shadow-[0_0_5px_rgba(255,0,0,0.8)]">Iudex</span>
                 
-                <!-- Sun Knights battlefield tag indicator -->
                 <span id="sun-knights-active-tag" class="text-xs text-yellow-500 font-bold tracking-wider mb-1 hidden"><i class="fa-regular fa-sun animate-spin text-xs mr-1"></i> Sun Knights Assisting!</span>
                 
                 <div class="w-full h-3 md:h-4 bg-zinc-900 border border-zinc-700 relative">
                     <div id="boss-hp-bar" class="h-full bg-red-700 transition-all duration-100 w-full"></div>
                 </div>
 
-                <!-- Parry Click Tracker Overlay -->
                 <div id="parry-indicator" class="hidden border border-purple-500/30 bg-purple-950/20 px-4 py-1 rounded mt-2 cinzel text-purple-300 text-xs md:text-sm font-bold tracking-widest animate-pulse text-center">
                     💥 SPAM CLICK TO PARRY: <span id="parry-count" class="text-yellow-400">0</span> / <span id="parry-needed">15</span>
                 </div>
@@ -291,8 +279,6 @@
                 <div id="target-boss" class="text-[6rem] md:text-[10rem] text-zinc-300 hidden cursor-pointer transition-transform duration-100 hover:scale-105 absolute drop-shadow-[0_10px_15px_rgba(0,0,0,1)]" onclick="attackBoss(event)">
                     <i id="boss-icon" class="fa-solid fa-skull"></i>
                     <div id="boss-attack-indicator" class="absolute inset-0 rounded-full border-4 border-red-600 scale-150 opacity-0 transition-all pointer-events-none"></div>
-                    <div id="swipe-left-ind" class="swipe-indicator -left-12 md:-left-24 top-1/2 -translate-y-1/2 hidden"><i class="fa-solid fa-arrow-left"></i></div>
-                    <div id="swipe-right-ind" class="swipe-indicator -right-12 md:-right-24 top-1/2 -translate-y-1/2 hidden"><i class="fa-solid fa-arrow-right"></i></div>
                 </div>
 
                 <div id="target-bloodstain" class="absolute -bottom-4 -right-4 md:bottom-4 md:right-4 text-3xl md:text-4xl hidden z-20" onclick="recoverBloodstain()" title="Recover Lost Souls">
@@ -314,7 +300,6 @@
         </div>
     </div>
 
-    <!-- Right Panel: Summons & Spells -->
     <div class="w-full md:w-[30%] bg-zinc-900 border-l border-zinc-800 h-[30vh] md:h-full flex flex-col z-10 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] order-3">
         <div class="flex border-b border-zinc-800">
             <button onclick="switchTab('summons')" id="tab-summons" class="flex-1 py-2 md:py-3 cinzel text-xs md:text-sm text-[#c5a961] border-b-2 border-[#c5a961] bg-zinc-800/50 transition">Summons</button>
@@ -393,7 +378,6 @@
             </div>
         </div>
 
-        <!-- Souls Counter Anchor Layout -->
         <div class="mt-auto bg-zinc-950 p-4 border-t border-zinc-800 text-center relative overflow-hidden group">
             <div class="flex justify-center items-center gap-3">
                 <span id="pulsing-skull" class="text-2xl select-none pulsing-skull">💀</span>
@@ -403,11 +387,9 @@
                 </div>
             </div>
             
-            <!-- Soul Embers Display Pane -->
             <div id="soul-embers-panel" class="hidden mt-2 border border-red-950/40 bg-red-950/5 p-2 rounded text-center">
                 <span class="text-[10px] uppercase tracking-widest text-zinc-500 font-mono">Soul Embers</span>
                 <div id="soul-embers-icons" class="flex justify-center gap-2 mt-1">
-                    <!-- Dynamic rendering of embers -->
                 </div>
             </div>
 
@@ -428,7 +410,14 @@
                 { name: "Longsword", mult: 2, cost: 2000 },
                 { name: "Uchigatana", mult: 5, cost: 10000 },
                 { name: "Zweihander", mult: 12, cost: 50000 },
-                { name: "Moonlight Greatsword", mult: 30, cost: 999999 }
+                { name: "Moonlight Greatsword", mult: 30, cost: 999999 },
+                { name: "Frayed Blade", mult: 75, cost: Infinity },
+                { name: "Rivers of Blood", mult: 150, cost: Infinity },
+                { name: "Darkmoon Greatsword", mult: 350, cost: Infinity },
+                { name: "Blasphemous Blade", mult: 800, cost: Infinity },
+                { name: "Maliketh's Black Blade", mult: 2000, cost: Infinity },
+                { name: "Hand of Malenia", mult: 5000, cost: Infinity },
+                { name: "Sacred Relic Sword", mult: 12000, cost: Infinity }
             ],
             maxEstus: 3, estus: 3, estusUpgradeCost: 1000,
             chestActive: false, powerupTimer: 0, dmgMultiplier: 1, spellBoostMult: 1,
@@ -442,7 +431,7 @@
             qteActive: false, qteTimer: 0, qteProgress: 0,
             currentBossIndex: 0, bossDeaths: 0, sunQueenDefeated: false,
             parryClicks: 0, requiredParryClicks: 15,
-            skullSpeedBoost: 0, // Click-dependent tempo parameter
+            skullSpeedBoost: 0,
             baseBosses: [
                 { name: "Asylum Demon (Tutorial)", maxHp: 350, attackDmg: 20, attackInterval: 5000, windupTime: 2500, icon: "fa-ghost", soulsReward: 500, tutorial: true },
                 { name: "Iudex, The Gatekeeper", maxHp: 900, attackDmg: 30, attackInterval: 4000, windupTime: 1200, icon: "fa-skull", soulsReward: 1000 },
@@ -451,10 +440,17 @@
                 { name: "The Abyss Watchers", maxHp: 12000, attackDmg: 90, attackInterval: 2500, windupTime: 800, icon: "fa-khanda", soulsReward: 25000 },
                 { name: "Darkeater Midir", maxHp: 32000, attackDmg: 130, attackInterval: 2800, windupTime: 950, icon: "fa-dragon", soulsReward: 75000 },
                 { name: "Lord of Cinder", maxHp: 75000, attackDmg: 180, attackInterval: 2200, windupTime: 750, icon: "fa-crown", soulsReward: 150000 },
-                { name: "Slave Knight Gael", maxHp: 180000, attackDmg: 250, attackInterval: 1800, windupTime: 650, icon: "fa-gavel", soulsReward: 500000 }
+                { name: "Slave Knight Gael", maxHp: 180000, attackDmg: 250, attackInterval: 1800, windupTime: 650, icon: "fa-gavel", soulsReward: 500000 },
+                { name: "The Nameless King", maxHp: 450000, attackDmg: 400, attackInterval: 1700, windupTime: 600, icon: "fa-bolt", soulsReward: 1200000 },
+                { name: "Orphan of the Abyss", maxHp: 950000, attackDmg: 600, attackInterval: 1600, windupTime: 550, icon: "fa-child", soulsReward: 3000000 },
+                { name: "Maliketh's Shadow", maxHp: 2000000, attackDmg: 900, attackInterval: 1500, windupTime: 500, icon: "fa-dog", soulsReward: 7500000 },
+                { name: "Sister Friede", maxHp: 4500000, attackDmg: 1300, attackInterval: 1400, windupTime: 450, icon: "fa-snowflake", soulsReward: 15000000 },
+                { name: "Radahn, Starscourge", maxHp: 9000000, attackDmg: 1800, attackInterval: 1300, windupTime: 400, icon: "fa-meteor", soulsReward: 35000000 },
+                { name: "Goddess of Rot", maxHp: 20000000, attackDmg: 2500, attackInterval: 1200, windupTime: 350, icon: "fa-disease", soulsReward: 80000000 },
+                { name: "The Outer God", maxHp: 50000000, attackDmg: 4000, attackInterval: 1000, windupTime: 300, icon: "fa-eye", soulsReward: 200000000 }
             ],
             activeBosses: [], bossHp: 0, bossTimer: 0, bossState: 'idle',
-            maidenType: 0, secretBossActive: false
+            maidenType: 0, secretBossActive: false, pendingWeaponChest: false
         };
 
         const DOM = {
@@ -467,7 +463,7 @@
             targetBonfire: document.getElementById('target-bonfire'), targetBoss: document.getElementById('target-boss'),
             targetBloodstain: document.getElementById('target-bloodstain'), bloodIcon: document.getElementById('bloodstain-icon'),
             bossUi: document.getElementById('boss-ui'), bossName: document.getElementById('boss-name'), bossHpBar: document.getElementById('boss-hp-bar'), bossIcon: document.getElementById('boss-icon'),
-            bossIndicator: document.getElementById('boss-attack-indicator'), swipeLeft: document.getElementById('swipe-left-ind'), swipeRight: document.getElementById('swipe-right-ind'),
+            bossIndicator: document.getElementById('boss-attack-indicator'),
             btnChallenge: document.getElementById('btn-challenge'), dodgeContainer: document.getElementById('dodge-container'), btnDodge: document.getElementById('dodge-btn'), btnRest: document.getElementById('btn-rest'),
             deathScreen: document.getElementById('death-screen'), deathSub: document.getElementById('death-subtext'),
             ngBadge: document.getElementById('ng-badge'), locName: document.getElementById('location-name'),
@@ -503,7 +499,6 @@
         function initGame() {
             DOM.nameDisplay.textContent = state.playerName;
             populateBosses();
-            if (state.mode === 'boss') setMode('bonfire');
             lastTime = performance.now();
             requestAnimationFrame(gameLoop);
             updateUI();
@@ -532,7 +527,6 @@
             lastTime = currentTime;
 
             if (!state.isPaused) {
-                // Decay the manual action surge tempo modifier smoothly
                 if (state.skullSpeedBoost > 0) {
                     state.skullSpeedBoost = Math.max(0, state.skullSpeedBoost - dt * 2.5);
                 }
@@ -541,7 +535,6 @@
                     updatePassive(dt);
                     updateBoss(dt * 1000);
                     
-                    // Sun Knights battle loop assistance mechanism
                     if (state.mode === 'boss' && state.sunQueenDefeated && state.summons.knight.qty > 0) {
                         const knightDmg = state.summons.knight.qty * state.summons.knight.sps * dt * state.permanentMult;
                         state.bossHp -= knightDmg;
@@ -615,13 +608,11 @@
         }
 
         function triggerFailedDodgeFeedback() {
-            // Shake and flash the stamina bar violently
             DOM.stamBar.classList.add('stamina-warning');
             setTimeout(() => {
                 DOM.stamBar.classList.remove('stamina-warning');
             }, 450);
 
-            // Display floating feedback overlay over action screen
             createFloatingText(window.innerWidth / 2, window.innerHeight / 2 + 50, "❌ DODGE FAILED: NO STAMINA", "#ef4444", 1.5, -40);
         }
 
@@ -635,7 +626,6 @@
             const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
             state.souls += gain;
 
-            // Surge pulsing speed dynamically with player interaction
             state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
             
             let clientX = window.innerWidth/2;
@@ -652,13 +642,11 @@
             let clientY = window.innerHeight/2;
             if(e && e.clientX) { clientX = e.clientX; clientY = e.clientY; }
 
-            // Intercept standard loop if boss is charging a Mega Attack
             if (state.bossState === 'windup_mega') {
                 state.parryClicks++;
                 DOM.parryCount.textContent = state.parryClicks;
                 createFloatingText(clientX, clientY, "⚡ PARRY!", "#a855f7", 0.4, -40);
                 
-                // Allow hits to continue chunking basic damage alongside registering values
                 const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
                 state.bossHp -= dmg;
                 state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.5);
@@ -763,13 +751,21 @@
         window.useChest = () => {
             if (state.isPaused || state.hp <= 0) return;
             if (state.chestActive) {
+                if (state.pendingWeaponChest) {
+                    state.weaponIndex++;
+                    state.pendingWeaponChest = false;
+                    DOM.chestBox.classList.remove('powerup-glow');
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, `ACQUIRED: ${state.weapons[state.weaponIndex].name}`, '#fde047', 3);
+                } else {
+                    state.powerupTimer = 10;
+                    state.dmgMultiplier = 2;
+                    DOM.mainArea.classList.add('powerup-glow');
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "POWER OVERWHELMING", '#c084fc');
+                }
                 state.chestActive = false;
-                state.powerupTimer = 10;
-                state.dmgMultiplier = 2;
-                DOM.mainArea.classList.add('powerup-glow');
                 DOM.chestBox.classList.add('opacity-30', 'grayscale', 'pointer-events-none');
                 DOM.chestStatus.textContent = "Empty";
-                createFloatingText(window.innerWidth/2, window.innerHeight/2, "POWER OVERWHELMING", '#c084fc');
+                saveState();
             }
         };
 
@@ -790,22 +786,17 @@
                         DOM.parryIndicator.classList.remove('hidden');
                         DOM.targetBoss.classList.add('boss-mega-windup');
                     } else {
-                        if (rand < 0.65) state.bossState = 'windup_left';
-                        else state.bossState = 'windup_right';
+                        state.bossState = 'windup_normal';
                         DOM.targetBoss.classList.add('boss-windup');
                     }
                     
                     state.bossTimer = 0;
                     DOM.bossIndicator.style.opacity = '1';
                     DOM.bossIndicator.style.transform = 'scale(0.8)';
-                    
-                    if (state.bossState === 'windup_left') DOM.swipeLeft.classList.remove('hidden');
-                    if (state.bossState === 'windup_right') DOM.swipeRight.classList.remove('hidden');
                 }
             } else if (state.bossState.startsWith('windup')) {
                 let actualWindup = boss.windupTime;
                 
-                // Give parries (mega attacks) more time, especially in the early game
                 if (state.bossState === 'windup_mega') {
                     const effectiveIndex = state.secretBossActive ? 7 : (state.currentBossIndex + (state.ngPlus * 5));
                     const earlyGameCushion = Math.max(0, 2000 - (effectiveIndex * 300));
@@ -821,7 +812,6 @@
                     state.bossTimer = 0;
                     DOM.bossIndicator.style.opacity = '0';
                     DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
-                    DOM.swipeLeft.classList.add('hidden'); DOM.swipeRight.classList.add('hidden');
                     DOM.parryIndicator.classList.add('hidden');
                     
                     bossStrike(boss.attackDmg, requiredDodge);
@@ -834,7 +824,6 @@
             let dodged = false;
             
             if (requiredDodge === 'mega') {
-                // If parry requirements met, completely negate damage and counter effectively
                 if (state.parryClicks >= state.requiredParryClicks) {
                     dodged = true;
                     const counterDamage = (boss.maxHp * 0.15) + ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult * 10);
@@ -843,7 +832,7 @@
                     if (state.bossHp <= 0) { defeatBoss(); return; }
                 }
             } else {
-                if (state.isDodging && (state.dodgeDirection === requiredDodge || state.dodgeDirection === 'space')) {
+                if (state.isDodging) {
                     dodged = true;
                 }
             }
@@ -878,6 +867,13 @@
             setMode('boss');
         };
 
+        function triggerBossWeaponChest() {
+            state.chestActive = true;
+            DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none');
+            DOM.chestBox.classList.add('powerup-glow');
+            DOM.chestStatus.textContent = "Loot Boss!";
+        }
+
         function defeatBoss() {
             state.bossDeaths = 0;
             if (state.secretBossActive) {
@@ -892,10 +888,13 @@
             const boss = state.activeBosses[state.currentBossIndex];
             state.souls += boss.soulsReward * state.permanentMult;
             
-            // Check progression unlock at Sun Queen Goldyna (Boss 4 index 3)
             if (state.currentBossIndex === 3) {
                 state.sunQueenDefeated = true;
                 createFloatingText(window.innerWidth/2, window.innerHeight/2 - 40, "☀️ SUN KNIGHTS UNLOCKED FOR BOSS ENCOUNTERS!", "#facc15", 4, -40);
+            }
+
+            if (state.currentBossIndex >= 7 && state.weaponIndex < state.weapons.length - 1) {
+                state.pendingWeaponChest = true;
             }
 
             state.currentBossIndex++;
@@ -910,6 +909,11 @@
             } else {
                 DOM.locName.textContent = `Area ${state.currentBossIndex + 1}`;
             }
+
+            if (state.pendingWeaponChest) {
+                triggerBossWeaponChest();
+            }
+
             saveState();
         }
 
@@ -920,14 +924,12 @@
             if (state.mode === 'boss') {
                 state.bossDeaths++;
                 if (state.bossDeaths >= 3) {
-                    // Complete loss of all souls if deaths reach 3 consecutive attempts
                     state.souls = 0;
                     state.bloodstain.active = false;
                     state.bloodstain.souls = 0;
-                    state.bossDeaths = 0; // Reset counter for next attempt sequence
+                    state.bossDeaths = 0;
                     DOM.deathSub.innerHTML = `<span class="text-red-500 font-bold block mb-1">YOUR SPIRIT HAS SHATTERED</span> 3 defeats to the same boss. All held souls are permanently lost.`;
                 } else {
-                    // Standard bloodstain drop, warning indicating remaining embers
                     state.bloodstain.active = true;
                     state.bloodstain.souls = Math.floor(state.souls);
                     state.bloodstain.isMemory = false;
@@ -935,7 +937,6 @@
                     DOM.deathSub.innerHTML = `<span class="text-zinc-400">Your souls remain at your bloodstain.</span><br><span class="text-red-400 font-mono mt-2 block">Embers: ${3 - state.bossDeaths} of 3 remaining</span>`;
                 }
             } else {
-                // Out-of-battle deaths (Secret bosses, etc.)
                 state.bloodstain.active = true;
                 state.bloodstain.souls = Math.floor(state.souls);
                 state.bloodstain.isMemory = false;
@@ -968,7 +969,9 @@
             state.hp = state.maxHp; state.estus = state.maxEstus;
             if (state.mode === 'boss') setMode('bonfire');
             
-            if (Math.random() < 0.25) {
+            if (state.pendingWeaponChest) {
+                triggerBossWeaponChest();
+            } else if (Math.random() < 0.25) {
                 state.chestActive = true;
                 DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none');
                 DOM.chestStatus.textContent = "Ready!";
@@ -1052,7 +1055,6 @@
                 DOM.bossUi.classList.add('hidden'); DOM.btnChallenge.classList.remove('hidden');
                 DOM.dodgeContainer.classList.add('hidden'); DOM.btnRest.classList.remove('opacity-50', 'pointer-events-none');
                 DOM.bossIndicator.style.opacity = '0'; DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
-                DOM.swipeLeft.classList.add('hidden'); DOM.swipeRight.classList.add('hidden');
                 DOM.parryIndicator.classList.add('hidden');
                 DOM.sunKnightsTag.classList.add('hidden');
             } else {
@@ -1145,24 +1147,36 @@
 
         function saveState() {
             try {
-                localStorage.setItem('soulsClickerSave_v3', JSON.stringify({
-                    playerName: state.playerName, souls: state.souls, ngPlus: state.ngPlus,
-                    levels: state.levels, weaponIndex: state.weaponIndex, maxEstus: state.maxEstus,
+                localStorage.setItem('soulsClickerSave_v4', JSON.stringify({
+                    playerName: state.playerName,
+                    souls: state.souls,
+                    ngPlus: state.ngPlus,
+                    levels: state.levels,
+                    weaponIndex: state.weaponIndex,
+                    maxEstus: state.maxEstus,
+                    estus: state.estus,
+                    hp: state.hp,
+                    stamina: state.stamina,
+                    mode: state.mode,
+                    currentBossIndex: state.currentBossIndex,
+                    bossHp: state.bossHp,
+                    bossDeaths: state.bossDeaths,
+                    sunQueenDefeated: state.sunQueenDefeated,
+                    bloodstain: state.bloodstain,
+                    permanentMult: state.permanentMult,
+                    pendingWeaponChest: state.pendingWeaponChest,
                     summons: {
                         hollow: state.summons.hollow.qty,
                         warrior: state.summons.warrior.qty,
                         knight: state.summons.knight.qty
-                    },
-                    permanentMult: state.permanentMult,
-                    bossDeaths: state.bossDeaths,
-                    sunQueenDefeated: state.sunQueenDefeated
+                    }
                 }));
             } catch(e) { console.error("Save failed", e); }
         }
 
         function loadSaveState() {
             try {
-                const saved = localStorage.getItem('soulsClickerSave_v3');
+                const saved = localStorage.getItem('soulsClickerSave_v4');
                 if (saved) {
                     const data = JSON.parse(saved);
                     state.playerName = data.playerName || "Undead";
@@ -1171,28 +1185,57 @@
                     state.levels = data.levels || { vigor: 1, endurance: 1, strength: 1 };
                     state.weaponIndex = data.weaponIndex || 0;
                     state.maxEstus = data.maxEstus || 3;
-                    state.estus = state.maxEstus;
+                    state.estus = data.estus !== undefined ? data.estus : state.maxEstus;
                     state.permanentMult = data.permanentMult || 1;
                     state.bossDeaths = data.bossDeaths || 0;
                     state.sunQueenDefeated = data.sunQueenDefeated || false;
+                    state.mode = data.mode || 'bonfire';
+                    state.currentBossIndex = data.currentBossIndex || 0;
+                    state.bossHp = data.bossHp || 0;
+                    state.pendingWeaponChest = data.pendingWeaponChest || false;
                     
-                    if(data.summons) {
+                    if (data.bloodstain) {
+                        state.bloodstain = data.bloodstain;
+                    }
+                    if (data.summons) {
                         state.summons.hollow.qty = data.summons.hollow || 0;
                         state.summons.warrior.qty = data.summons.warrior || 0;
                         state.summons.knight.qty = data.summons.knight || 0;
                     }
 
                     state.maxHp = 100 + ((state.levels.vigor - 1) * 20);
-                    state.hp = state.maxHp;
+                    state.hp = data.hp !== undefined ? data.hp : state.maxHp;
                     state.maxStamina = 100 + ((state.levels.endurance - 1) * 15);
                     state.staminaRegen = 25 + ((state.levels.endurance - 1) * 2);
-                    state.stamina = state.maxStamina;
+                    state.stamina = data.stamina !== undefined ? data.stamina : state.maxStamina;
                     
                     state.costs.vigor = Math.floor(100 * Math.pow(1.15, state.levels.vigor-1));
                     state.costs.endurance = Math.floor(100 * Math.pow(1.15, state.levels.endurance-1));
                     state.costs.strength = Math.floor(150 * Math.pow(1.15, state.levels.strength-1));
                     
-                    for(let i=0; i<state.maxEstus-3; i++) state.estusUpgradeCost *= 2.5;
+                    for (let i = 0; i < state.maxEstus - 3; i++) {
+                        state.estusUpgradeCost *= 2.5;
+                    }
+
+                    populateBosses();
+
+                    if (state.mode === 'boss') {
+                        const boss = state.activeBosses[state.currentBossIndex];
+                        if (boss) {
+                            DOM.bossName.textContent = boss.name;
+                            DOM.bossIcon.className = `fa-solid ${boss.icon}`;
+                            if (state.bossHp <= 0) {
+                                state.bossHp = boss.maxHp;
+                            }
+                            setMode('boss');
+                        } else {
+                            setMode('bonfire');
+                        }
+                    } else if (state.pendingWeaponChest) {
+                        triggerBossWeaponChest();
+                    } else {
+                        setMode('bonfire');
+                    }
 
                     return true;
                 }
@@ -1212,14 +1255,12 @@
             
             DOM.estusText.textContent = state.estus;
             
-            // Dynamic scale formula for the pulsing Skull Emoji
             const passiveSPS = getSPS() * state.permanentMult;
             const rateIndex = passiveSPS + (state.skullSpeedBoost * 100);
             const speedFactor = 1 + (rateIndex / 50);
             const computedDuration = Math.max(0.12, 3 / speedFactor);
             DOM.pulsingSkull.style.setProperty('--pulse-dur', `${computedDuration}s`);
 
-            // Embers UI Configuration for Boss Mode
             if (state.mode === 'boss') {
                 DOM.soulEmbersPanel.classList.remove('hidden');
                 const remaining = Math.max(0, 3 - state.bossDeaths);
@@ -1305,29 +1346,12 @@
                 } else {
                     gatherSouls({clientX: window.innerWidth/2, clientY: window.innerHeight/2});
                 }
-            } else if (e.key === 'ArrowLeft' && state.mode === 'boss') {
-                e.preventDefault(); dodge('left');
-            } else if (e.key === 'ArrowRight' && state.mode === 'boss') {
-                e.preventDefault(); dodge('right');
             } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
                 e.preventDefault(); useEstus();
             } else if (e.key.toLowerCase() === 'z') {
                 useChest();
             }
         });
-        
-        let touchStartX = 0;
-        DOM.clickZone.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, {passive: true});
-        DOM.clickZone.addEventListener('touchend', e => {
-            if(state.mode !== 'boss' || state.bossState === 'windup_mega') return;
-            let touchEndX = e.changedTouches[0].clientX;
-            let diff = touchEndX - touchStartX;
-            if(Math.abs(diff) > 50) {
-                if(diff > 0) dodge('right');
-                else dodge('left');
-            }
-        }, {passive: true});
-
     </script>
 </body>
 </html>
