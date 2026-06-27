@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Souls Clicker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Souls Clicker: Extended Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -14,6 +14,7 @@
             --souls-red: #8b0000;
             --souls-dark: #121212;
             --memory-gold: #fde047;
+            --special-blue: #0ea5e9;
         }
         body {
             font-family: 'Cormorant Garamond', serif;
@@ -91,6 +92,13 @@
         .btn-upgrade:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
         
         #dodge-btn.dodging { background-color: #3b82f6 !important; box-shadow: 0 0 20px #3b82f6; color: white; border-color: #60a5fa; }
+        
+        #special-btn { transition: all 0.2s; }
+        #special-btn.ready { animation: special-pulse 1s infinite alternate; background-color: #0c4a6e; border-color: #38bdf8; cursor: pointer; opacity: 1; }
+        @keyframes special-pulse {
+            0% { box-shadow: 0 0 10px #0284c7 inset; }
+            100% { box-shadow: 0 0 25px #38bdf8 inset; }
+        }
 
         .powerup-glow { box-shadow: 0 0 20px #a855f7 inset; border-color: #d8b4fe !important; }
 
@@ -105,9 +113,7 @@
             0%, 100% { background-color: #16a34a; }
             50% { background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
         }
-        .stamina-warning {
-            animation: stamina-flash 0.1s 4;
-        }
+        .stamina-warning { animation: stamina-flash 0.1s 4; }
 
         .pulsing-skull {
             display: inline-block;
@@ -118,6 +124,15 @@
             0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(197, 169, 97, 0.2)); }
             50% { transform: scale(1.3); filter: drop-shadow(0 0 12px rgba(197, 169, 97, 0.9)); }
         }
+
+        /* Landscape Mobile Optimizations */
+        @media (max-width: 900px) and (orientation: landscape) {
+            #main-area { flex-direction: row; }
+            .min-h-[250px] { min-h: 150px; }
+            #boss-ui { width: 50%; margin: 0 auto; }
+            .you-died-text { font-size: 4rem; }
+            #left-panel, #right-panel { width: 40%; }
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col md:flex-row overflow-hidden relative">
@@ -127,10 +142,9 @@
         <p class="text-zinc-500 mb-8 font-serif italic text-sm">developer credit: @skyeprobably on Instagram</p>
         <div class="flex flex-col gap-4 w-64 mt-4">
             <button id="btn-login-guest" class="py-3 px-6 bg-zinc-800 border border-zinc-600 text-zinc-300 rounded shadow hover:bg-zinc-700 transition cinzel">
-                Play
+                Play / Load
             </button>
         </div>
-        <p id="auth-status" class="mt-4 text-zinc-400 text-sm hidden">Connecting...</p>
     </div>
 
     <div id="name-create-screen" class="fixed inset-0 bg-zinc-900 z-[90] hidden flex-col items-center justify-center bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]">
@@ -141,9 +155,11 @@
 
     <div id="pause-menu" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center backdrop-blur-sm">
         <h2 class="cinzel text-5xl text-zinc-200 mb-12 border-b border-zinc-600 pb-4">PAUSED</h2>
-        <div class="flex flex-col gap-6 w-64">
+        <div class="flex flex-col gap-4 w-64">
             <button onclick="togglePause()" class="py-3 px-6 bg-zinc-800 border border-zinc-600 text-zinc-300 rounded shadow hover:bg-zinc-700 transition cinzel text-xl">Resume</button>
-            <button onclick="saveAndQuit()" class="py-3 px-6 bg-zinc-800 border border-red-900 text-red-400 rounded shadow hover:bg-zinc-700 hover:text-red-300 transition cinzel text-xl">Save & Quit</button>
+            <button onclick="exportSave()" class="py-2 px-6 bg-blue-900 border border-blue-600 text-blue-200 rounded shadow hover:bg-blue-800 transition cinzel text-lg">Export Save</button>
+            <button onclick="importSave()" class="py-2 px-6 bg-green-900 border border-green-600 text-green-200 rounded shadow hover:bg-green-800 transition cinzel text-lg">Import Save</button>
+            <button onclick="saveAndQuit()" class="py-3 px-6 bg-zinc-800 border border-red-900 text-red-400 rounded shadow hover:bg-zinc-700 hover:text-red-300 transition cinzel text-xl mt-4">Save & Quit</button>
         </div>
     </div>
 
@@ -204,6 +220,10 @@
         <button onclick="restAtBonfire()" id="btn-rest" class="mt-4 w-full py-2 border border-zinc-700 hover:border-[#c5a961] hover:text-[#c5a961] transition cinzel flex justify-center items-center gap-2 bg-black/30 text-sm md:text-base">
             <i class="fa-solid fa-fire"></i> Rest at Bonfire
         </button>
+
+        <button onclick="enterDungeon()" id="btn-dungeon" class="mt-2 hidden w-full py-2 border border-indigo-700 hover:border-indigo-400 hover:text-indigo-300 transition cinzel flex justify-center items-center gap-2 bg-indigo-950/30 text-sm md:text-base text-indigo-500">
+            <i class="fa-solid fa-dungeon"></i> Enter Dungeon
+        </button>
         
         <div class="mt-4 md:mt-6 flex-1">
             <h3 class="cinzel text-zinc-400 border-b border-zinc-800 pb-1 mb-2 md:mb-3 text-sm md:text-base">Level Up</h3>
@@ -235,6 +255,13 @@
                         <div class="text-[9px] md:text-[10px] text-zinc-500">Parry Clicks Required (-1)</div>
                     </div>
                     <div class="text-[#c5a961] text-[10px] md:text-xs"><span id="cost-parry">500</span> S</div>
+                </button>
+                <button id="upg-special" onclick="levelUp('special')" class="btn-upgrade w-full p-2 rounded hidden justify-between items-center text-left">
+                    <div>
+                        <div class="cinzel text-zinc-200 text-xs md:text-sm">Focus <span id="lvl-special" class="text-zinc-500 text-[10px] md:text-xs ml-1">Lv.1</span></div>
+                        <div class="text-[9px] md:text-[10px] text-zinc-500">Special Attack Dmg Boost</div>
+                    </div>
+                    <div class="text-[#c5a961] text-[10px] md:text-xs"><span id="cost-special">5000</span> S</div>
                 </button>
                 
                 <h3 class="cinzel text-zinc-500 text-[10px] md:text-xs mt-3 md:mt-4 mb-1 md:mb-2">Equipment</h3>
@@ -328,12 +355,17 @@
                 </div>
 
                 <button id="btn-challenge" onclick="challengeBoss()" class="w-full bg-zinc-900 border border-red-900/50 hover:border-red-700 text-zinc-400 hover:text-red-400 transition cinzel py-3 md:py-3 px-4 md:px-6 rounded tracking-wider shadow-[0_0_10px_rgba(139,0,0,0.1)] hover:shadow-[0_0_15px_rgba(139,0,0,0.3)] text-base">
-                    Traverse the Fog (Boss)
+                    Traverse Fog [F]
                 </button>
                 
                 <div id="dodge-container" class="hidden w-full flex flex-col gap-2">
+                    <button id="special-btn" onclick="useSpecialAttack()" class="w-full bg-zinc-800 border border-zinc-700 text-zinc-500 cinzel py-1 rounded text-sm flex items-center justify-center relative overflow-hidden opacity-70">
+                        <div id="special-bar" class="absolute left-0 top-0 h-full bg-sky-600 transition-all duration-200 pointer-events-none" style="width: 0%"></div>
+                        <span class="z-10 relative"><i class="fa-solid fa-bolt"></i> SPECIAL [E] <span id="special-text">0%</span></span>
+                    </button>
+
                     <button id="dodge-btn" onclick="dodge('space')" class="w-full bg-zinc-800 border border-zinc-600 text-zinc-200 cinzel py-3 md:py-3 px-4 md:px-6 rounded text-lg flex items-center justify-center gap-2 shadow-lg active:bg-zinc-700">
-                        <i class="fa-solid fa-shield-halved"></i> DODGE
+                        <i class="fa-solid fa-shield-halved"></i> DODGE [Space]
                     </button>
                 </div>
             </div>
@@ -342,8 +374,9 @@
 
     <div id="right-panel" class="fixed inset-y-0 right-0 w-[85vw] sm:w-80 md:w-[30%] bg-zinc-900 border-l border-zinc-800 h-full flex flex-col z-50 shadow-[-5px_0_15px_rgba(0,0,0,0.5)] transform translate-x-full md:translate-x-0 transition-transform duration-300 md:relative md:order-3">
         <div class="flex border-b border-zinc-800 relative">
-            <button onclick="switchTab('summons')" id="tab-summons" class="flex-1 py-3 md:py-3 cinzel text-sm text-[#c5a961] border-b-2 border-[#c5a961] bg-zinc-800/50 transition">Summons</button>
-            <button onclick="switchTab('spells')" id="tab-spells" class="flex-1 py-3 md:py-3 cinzel text-sm text-zinc-500 hover:text-zinc-300 transition">Spells</button>
+            <button onclick="switchTab('summons')" id="tab-summons" class="flex-1 py-3 md:py-3 cinzel text-xs text-[#c5a961] border-b-2 border-[#c5a961] bg-zinc-800/50 transition">Summons</button>
+            <button onclick="switchTab('spells')" id="tab-spells" class="flex-1 py-3 md:py-3 cinzel text-xs text-zinc-500 hover:text-zinc-300 transition">Spells</button>
+            <button onclick="switchTab('leaderboard')" id="tab-leaderboard" class="flex-1 py-3 md:py-3 cinzel text-xs text-zinc-500 hover:text-zinc-300 transition">Global</button>
             
             <button onclick="closeMenus()" class="md:hidden absolute top-1/2 -translate-y-1/2 right-2 text-zinc-400 hover:text-white w-8 h-8 bg-zinc-800 rounded-full flex items-center justify-center border border-zinc-700 shadow z-20"><i class="fa-solid fa-xmark"></i></button>
         </div>
@@ -418,6 +451,16 @@
                     <div class="text-yellow-300 text-sm bg-yellow-900/50 px-2 py-1 rounded">15,000 S</div>
                 </button>
             </div>
+            
+            <div id="panel-leaderboard" class="hidden flex-col h-full">
+                <button onclick="saveHighscore()" class="mb-4 w-full py-2 bg-zinc-800 border border-zinc-600 text-zinc-300 hover:text-white transition cinzel text-sm">
+                    Publish My Score
+                </button>
+                <h3 class="cinzel text-zinc-400 border-b border-zinc-800 pb-1 mb-2 text-sm text-center">Tarnished Legends</h3>
+                <div id="leaderboard-list" class="space-y-2 overflow-y-auto">
+                    <p class="text-center text-xs text-zinc-500 italic mt-4">Loading names of the fallen...</p>
+                </div>
+            </div>
         </div>
 
         <div class="mt-auto bg-zinc-950 p-4 border-t border-zinc-800 text-center relative overflow-hidden group">
@@ -439,13 +482,66 @@
         </div>
     </div>
 
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyCwp5C_F8bJxUJn0O89ota8V8IfWLncRag",
+            authDomain: "soulsclicker-28b3a.firebaseapp.com",
+            projectId: "soulsclicker-28b3a",
+            storageBucket: "soulsclicker-28b3a.firebasestorage.app",
+            messagingSenderId: "3481894509",
+            appId: "1:3481894509:web:4cfb48f476271e2b48c964"
+        };
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        window.fetchLeaderboard = async () => {
+            const listEl = document.getElementById('leaderboard-list');
+            try {
+                const q = query(collection(db, "highscores"), orderBy("ngPlus", "desc"), orderBy("souls", "desc"), limit(10));
+                const querySnapshot = await getDocs(q);
+                listEl.innerHTML = '';
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    listEl.innerHTML += `
+                        <div class="flex justify-between items-center p-2 bg-zinc-900 border border-zinc-800 rounded text-xs">
+                            <span class="cinzel text-zinc-300">${data.name}</span>
+                            <span class="text-[#c5a961]">NG+${data.ngPlus}</span>
+                        </div>
+                    `;
+                });
+                if(listEl.innerHTML === '') listEl.innerHTML = '<p class="text-center text-xs text-zinc-500 italic mt-4">No legends yet.</p>';
+            } catch (e) {
+                listEl.innerHTML = `<p class="text-center text-xs text-red-500 italic mt-4">Offline / Error.</p>`;
+            }
+        };
+
+        window.saveHighscore = async () => {
+            if(state.souls === 0 && state.ngPlus === 0) return;
+            try {
+                await addDoc(collection(db, "highscores"), {
+                    name: state.playerName,
+                    ngPlus: state.ngPlus,
+                    souls: Math.floor(state.souls),
+                    timestamp: new Date()
+                });
+                alert("Score published to the records!");
+                window.fetchLeaderboard();
+            } catch (e) {
+                alert("Could not connect to the network.");
+            }
+        };
+    </script>
+
     <script>
         const state = {
             playerName: "", souls: 0, ngPlus: 0, isPaused: false,
             maxHp: 100, hp: 100, maxStamina: 100, stamina: 100, staminaRegen: 25,
-            clickDamageBase: 1, weaponMultiplier: 1, permanentMult: 1,
-            levels: { vigor: 1, endurance: 1, strength: 1, parry: 0 },
-            costs: { vigor: 100, endurance: 100, strength: 150, parry: 500 },
+            clickDamageBase: 1, weaponMultiplier: 1, permanentMult: 1, maidenBuffs: 1,
+            levels: { vigor: 1, endurance: 1, strength: 1, parry: 0, special: 1 },
+            costs: { vigor: 100, endurance: 100, strength: 150, parry: 500, special: 5000 },
             weaponIndex: 0,
             weapons: [
                 { name: "Broken Straight Sword", mult: 1, cost: 500 },
@@ -463,6 +559,7 @@
             ],
             maxEstus: 3, estus: 3, estusUpgradeCost: 1000,
             chestActive: false, powerupTimer: 0, dmgMultiplier: 1, spellBoostMult: 1,
+            specialMeter: 0, specialMax: 100,
             summons: {
                 hollow: { qty: 0, sps: 1, baseCost: 50 },
                 warrior: { qty: 0, sps: 5, baseCost: 500 },
@@ -474,6 +571,7 @@
             currentBossIndex: 0, bossDeaths: 0, sunQueenDefeated: false,
             parryClicks: 0, requiredParryClicks: 15,
             skullSpeedBoost: 0,
+            dungeonIndex: 0,
             baseBosses: [
                 { name: "Asylum Demon (Tutorial)", maxHp: 350, attackDmg: 20, attackInterval: 5000, windupTime: 2500, icon: "fa-ghost", soulsReward: 500, tutorial: true },
                 { name: "Iudex, The Gatekeeper", maxHp: 900, attackDmg: 30, attackInterval: 4000, windupTime: 1200, icon: "fa-skull", soulsReward: 1000 },
@@ -509,7 +607,8 @@
             targetBloodstain: document.getElementById('target-bloodstain'), bloodIcon: document.getElementById('bloodstain-icon'),
             bossUi: document.getElementById('boss-ui'), bossName: document.getElementById('boss-name'), bossHpBar: document.getElementById('boss-hp-bar'), bossIcon: document.getElementById('boss-icon'),
             bossIndicator: document.getElementById('boss-attack-indicator'),
-            btnChallenge: document.getElementById('btn-challenge'), dodgeContainer: document.getElementById('dodge-container'), btnDodge: document.getElementById('dodge-btn'), btnRest: document.getElementById('btn-rest'),
+            btnChallenge: document.getElementById('btn-challenge'), btnDungeon: document.getElementById('btn-dungeon'), dodgeContainer: document.getElementById('dodge-container'), btnDodge: document.getElementById('dodge-btn'), btnRest: document.getElementById('btn-rest'),
+            specialBtn: document.getElementById('special-btn'), specialBar: document.getElementById('special-bar'), specialText: document.getElementById('special-text'),
             deathScreen: document.getElementById('death-screen'), deathSub: document.getElementById('death-subtext'),
             ngBadge: document.getElementById('ng-badge'), locName: document.getElementById('location-name'),
             clickZone: document.getElementById('click-zone'), mainArea: document.getElementById('main-area'),
@@ -524,34 +623,9 @@
             mobileBossHud: document.getElementById('mobile-boss-hud'), mobileHpText: document.getElementById('mobile-hp-text'), mobileHpBar: document.getElementById('mobile-hp-bar'), mobileStamText: document.getElementById('mobile-stam-text'), mobileStamBar: document.getElementById('mobile-stam-bar')
         };
 
-        window.toggleLeftMenu = () => {
-            leftMenuOpen = !leftMenuOpen;
-            if (leftMenuOpen) {
-                DOM.leftPanel.classList.remove('-translate-x-full');
-                DOM.mobileOverlay.classList.remove('hidden');
-                if (rightMenuOpen) window.toggleRightMenu();
-            } else {
-                DOM.leftPanel.classList.add('-translate-x-full');
-                if (!rightMenuOpen) DOM.mobileOverlay.classList.add('hidden');
-            }
-        };
-
-        window.toggleRightMenu = () => {
-            rightMenuOpen = !rightMenuOpen;
-            if (rightMenuOpen) {
-                DOM.rightPanel.classList.remove('translate-x-full');
-                DOM.mobileOverlay.classList.remove('hidden');
-                if (leftMenuOpen) window.toggleLeftMenu();
-            } else {
-                DOM.rightPanel.classList.add('translate-x-full');
-                if (!leftMenuOpen) DOM.mobileOverlay.classList.add('hidden');
-            }
-        };
-
-        window.closeMenus = () => {
-            if (leftMenuOpen) window.toggleLeftMenu();
-            if (rightMenuOpen) window.toggleRightMenu();
-        };
+        window.toggleLeftMenu = () => { leftMenuOpen = !leftMenuOpen; leftMenuOpen ? (DOM.leftPanel.classList.remove('-translate-x-full'), DOM.mobileOverlay.classList.remove('hidden'), rightMenuOpen && window.toggleRightMenu()) : (DOM.leftPanel.classList.add('-translate-x-full'), !rightMenuOpen && DOM.mobileOverlay.classList.add('hidden')); };
+        window.toggleRightMenu = () => { rightMenuOpen = !rightMenuOpen; rightMenuOpen ? (DOM.rightPanel.classList.remove('translate-x-full'), DOM.mobileOverlay.classList.remove('hidden'), leftMenuOpen && window.toggleLeftMenu()) : (DOM.rightPanel.classList.add('translate-x-full'), !leftMenuOpen && DOM.mobileOverlay.classList.add('hidden')); };
+        window.closeMenus = () => { leftMenuOpen && window.toggleLeftMenu(); rightMenuOpen && window.toggleRightMenu(); };
 
         DOM.btnGuest.onclick = () => {
             DOM.startup.classList.add('hidden');
@@ -603,16 +677,14 @@
             lastTime = currentTime;
 
             if (!state.isPaused) {
-                if (state.skullSpeedBoost > 0) {
-                    state.skullSpeedBoost = Math.max(0, state.skullSpeedBoost - dt * 2.5);
-                }
+                if (state.skullSpeedBoost > 0) state.skullSpeedBoost = Math.max(0, state.skullSpeedBoost - dt * 2.5);
 
                 if (state.hp > 0) {
                     updatePassive(dt);
-                    updateBoss(dt * 1000);
+                    if(state.mode === 'boss' || state.mode === 'dungeon') updateBoss(dt * 1000);
                     
                     if (state.mode === 'boss' && state.sunQueenDefeated && state.summons.knight.qty > 0) {
-                        const knightDmg = state.summons.knight.qty * state.summons.knight.sps * dt * state.permanentMult;
+                        const knightDmg = state.summons.knight.qty * state.summons.knight.sps * dt * state.permanentMult * state.maidenBuffs;
                         state.bossHp -= knightDmg;
                         if (state.bossHp <= 0) defeatBoss();
                     }
@@ -627,10 +699,7 @@
                 }
                 
                 autoSaveTimer += dt;
-                if(autoSaveTimer >= 30) {
-                    saveState();
-                    autoSaveTimer = 0;
-                }
+                if(autoSaveTimer >= 30) { saveState(); autoSaveTimer = 0; }
             }
 
             updateUI();
@@ -638,13 +707,11 @@
         }
 
         function updatePassive(dt) {
-            if (state.stamina < state.maxStamina) {
-                state.stamina = Math.min(state.maxStamina, state.stamina + (state.staminaRegen * dt));
-            }
+            if (state.stamina < state.maxStamina) state.stamina = Math.min(state.maxStamina, state.stamina + (state.staminaRegen * dt));
 
             let sps = getSPS();
             if (sps > 0) {
-                state.souls += sps * dt * state.permanentMult;
+                state.souls += sps * dt * state.permanentMult * state.maidenBuffs;
                 summonVisualTimer += dt;
                 const threshold = Math.max(0.1, 1 / Math.min(sps, 15));
                 if (summonVisualTimer >= threshold) {
@@ -671,14 +738,10 @@
             const el = document.createElement('div');
             el.textContent = text;
             el.className = 'absolute pointer-events-none cinzel font-bold z-50 text-xl md:text-2xl';
-            el.style.left = `${x}px`;
-            el.style.top = `${y}px`;
-            el.style.color = color;
-            el.style.textShadow = '0 2px 4px rgba(0,0,0,0.8)';
-            el.style.transform = 'translate(-50%, -50%)';
+            el.style.left = `${x}px`; el.style.top = `${y}px`; el.style.color = color;
+            el.style.textShadow = '0 2px 4px rgba(0,0,0,0.8)'; el.style.transform = 'translate(-50%, -50%)';
             el.style.transition = `all ${duration}s ease-out`;
             document.body.appendChild(el);
-            
             setTimeout(() => { el.style.top = `${y + yOffset}px`; el.style.opacity = '0'; }, 50);
             setTimeout(() => el.remove(), duration * 1000);
         }
@@ -686,12 +749,10 @@
         function triggerFailedDodgeFeedback() {
             DOM.stamBar.classList.add('stamina-warning');
             if(DOM.mobileStamBar) DOM.mobileStamBar.classList.add('stamina-warning');
-            
             setTimeout(() => {
                 DOM.stamBar.classList.remove('stamina-warning');
                 if(DOM.mobileStamBar) DOM.mobileStamBar.classList.remove('stamina-warning');
             }, 450);
-
             createFloatingText(window.innerWidth / 2, window.innerHeight / 2 + 50, "❌ DODGE FAILED: NO STAMINA", "#ef4444", 1.5, -40);
         }
 
@@ -702,23 +763,49 @@
                 state.stamina -= state.actionCost;
             }
             
-            const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
+            const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
             state.souls += gain;
 
             state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
+            chargeSpecialMeter(2);
             
-            let clientX = window.innerWidth/2;
-            let clientY = window.innerHeight/2;
+            let clientX = window.innerWidth/2; let clientY = window.innerHeight/2;
             if(e && e.clientX) { clientX = e.clientX; clientY = e.clientY; }
+            createFloatingText(clientX, clientY, `+${formatLargeNumberDisplay(gain)}`, '#c5a961');
+        };
+        
+        function chargeSpecialMeter(amount) {
+            if(state.specialMeter < state.specialMax) {
+                state.specialMeter = Math.min(state.specialMax, state.specialMeter + amount);
+                if(state.specialMeter === state.specialMax) DOM.specialBtn.classList.add('ready');
+            }
+        }
+
+        window.useSpecialAttack = () => {
+            if(state.isPaused || state.hp <= 0 || state.specialMeter < state.specialMax) return;
+            state.specialMeter = 0;
+            DOM.specialBtn.classList.remove('ready');
             
-            createFloatingText(clientX, clientY, `+${Math.floor(gain)}`, '#c5a961');
+            const dmgBase = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult);
+            const specialMult = 50 + (state.levels.special * 10);
+            const dmg = dmgBase * specialMult * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
+            
+            createFloatingText(window.innerWidth/2, window.innerHeight/2, `⚡ BURST: ${formatLargeNumberDisplay(dmg)}`, "#0ea5e9", 2, -100);
+            DOM.mainArea.classList.add('powerup-glow');
+            setTimeout(()=> DOM.mainArea.classList.remove('powerup-glow'), 300);
+
+            if(state.mode === 'boss' || state.mode === 'dungeon') {
+                state.bossHp -= dmg;
+                if (state.bossHp <= 0) defeatBoss();
+            } else {
+                state.souls += dmg * 10; // Extra souls if used at bonfire
+            }
         };
 
         window.attackBoss = (e, isSpell = false) => {
             if (state.isPaused || state.hp <= 0) return;
             
-            let clientX = window.innerWidth/2;
-            let clientY = window.innerHeight/2;
+            let clientX = window.innerWidth/2; let clientY = window.innerHeight/2;
             if(e && e.clientX) { clientX = e.clientX; clientY = e.clientY; }
 
             if (state.bossState === 'windup_mega') {
@@ -726,8 +813,9 @@
                 DOM.parryCount.textContent = state.parryClicks;
                 createFloatingText(clientX, clientY, "⚡ PARRY!", "#a855f7", 0.4, -40);
                 
-                const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
+                const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
                 state.bossHp -= dmg;
+                chargeSpecialMeter(5);
                 state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.5);
                 if (state.bossHp <= 0) defeatBoss();
                 return;
@@ -738,11 +826,12 @@
                 state.stamina -= state.actionCost;
             }
             
-            const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult;
+            const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
             state.bossHp -= dmg;
             state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
+            chargeSpecialMeter(3);
             
-            createFloatingText(clientX, clientY, Math.floor(dmg), '#ffffff');
+            createFloatingText(clientX, clientY, formatLargeNumberDisplay(dmg), '#ffffff');
             
             DOM.targetBoss.classList.remove('shake');
             void DOM.targetBoss.offsetWidth;
@@ -752,36 +841,27 @@
         };
 
         window.dodge = (direction = 'space') => {
-            if (state.mode !== 'boss' || state.isPaused || state.hp <= 0 || state.bossState === 'windup_mega') return;
+            if (state.mode === 'bonfire' || state.isPaused || state.hp <= 0 || state.bossState === 'windup_mega') return;
             const now = performance.now();
 
             if (state.lastDodgeTime && now - state.lastDodgeTime < 1000) return;
-            if (state.stamina < state.dodgeCost) {
-                triggerFailedDodgeFeedback();
-                return;
-            }
+            if (state.stamina < state.dodgeCost) { triggerFailedDodgeFeedback(); return; }
             
-            state.stamina -= state.dodgeCost;
-            state.isDodging = true;
-            state.dodgeDirection = direction;
-            state.lastDodgeTime = now;
-            
+            state.stamina -= state.dodgeCost; state.isDodging = true; state.dodgeDirection = direction; state.lastDodgeTime = now;
             DOM.btnDodge.classList.add('dodging');
             
             clearTimeout(dodgeTimeout);
             dodgeTimeout = setTimeout(() => {
-                state.isDodging = false;
-                state.dodgeDirection = null;
-                DOM.btnDodge.classList.remove('dodging');
+                state.isDodging = false; state.dodgeDirection = null; DOM.btnDodge.classList.remove('dodging');
             }, state.dodgeDuration);
         };
 
         window.castSpell = (spell) => {
             if (state.isPaused || state.hp <= 0) return;
+            if (state.mode === 'bonfire') { createFloatingText(window.innerWidth/2, window.innerHeight/2, "Cannot cast at Bonfire", "#ef4444"); return; }
             if (spell === 'powerWithin') {
                 if (state.souls >= 2000) {
-                    state.souls -= 2000;
-                    state.spellBoostMult = 5;
+                    state.souls -= 2000; state.spellBoostMult = 5;
                     createFloatingText(window.innerWidth/2, window.innerHeight/2, "POWER WITHIN", "#ef4444", 2);
                     setTimeout(() => state.spellBoostMult = 1, 10000);
                 }
@@ -792,28 +872,22 @@
                     let ticks = 0;
                     let iv = setInterval(() => {
                         if (state.isPaused || state.hp <= 0) return;
-                        if (state.mode === 'boss') attackBoss({clientX: window.innerWidth/2 + (Math.random()*40-20), clientY: window.innerHeight/2 + (Math.random()*40-20)}, true);
+                        if (state.mode === 'boss' || state.mode === 'dungeon') attackBoss({clientX: window.innerWidth/2 + (Math.random()*40-20), clientY: window.innerHeight/2 + (Math.random()*40-20)}, true);
                         else gatherSouls({clientX: window.innerWidth/2 + (Math.random()*40-20), clientY: window.innerHeight/2 + (Math.random()*40-20)}, true);
-                        ticks++;
-                        if (ticks >= 50) clearInterval(iv);
+                        ticks++; if (ticks >= 50) clearInterval(iv);
                     }, 100);
                 }
             } else if (spell === 'wotg') {
                 if (state.souls >= 15000) {
                     state.souls -= 15000;
-                    let flash = document.createElement('div');
-                    flash.className = 'wotg-active';
-                    document.body.appendChild(flash);
+                    let flash = document.createElement('div'); flash.className = 'wotg-active'; document.body.appendChild(flash);
                     setTimeout(() => flash.remove(), 500);
                     
-                    if (state.mode === 'boss') {
-                        const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * 50 * state.dmgMultiplier * state.permanentMult;
+                    if (state.mode === 'boss' || state.mode === 'dungeon') {
+                        const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * 50 * state.dmgMultiplier * state.permanentMult * state.maidenBuffs;
                         state.bossHp -= dmg;
-                        createFloatingText(window.innerWidth/2, window.innerHeight/2, Math.floor(dmg), '#fef08a', 2);
+                        createFloatingText(window.innerWidth/2, window.innerHeight/2, formatLargeNumberDisplay(dmg), '#fef08a', 2);
                         if (state.bossHp <= 0) defeatBoss();
-                    } else {
-                        state.souls += 10000 * state.permanentMult;
-                        createFloatingText(window.innerWidth/2, window.innerHeight/2, "+10000", '#fef08a', 2);
                     }
                 }
             }
@@ -822,8 +896,7 @@
         window.useEstus = () => {
             if (state.isPaused || state.hp <= 0) return;
             if (state.estus > 0 && state.hp < state.maxHp) {
-                state.estus--;
-                state.hp = Math.min(state.maxHp, state.hp + (state.maxHp * 0.4));
+                state.estus--; state.hp = Math.min(state.maxHp, state.hp + (state.maxHp * 0.4));
             }
         };
 
@@ -831,235 +904,197 @@
             if (state.isPaused || state.hp <= 0) return;
             if (state.chestActive) {
                 if (state.pendingWeaponChest) {
-                    state.weaponIndex++;
-                    state.pendingWeaponChest = false;
+                    state.weaponIndex++; state.pendingWeaponChest = false;
                     DOM.chestBox.classList.remove('powerup-glow');
                     createFloatingText(window.innerWidth/2, window.innerHeight/2, `ACQUIRED: ${state.weapons[state.weaponIndex].name}`, '#fde047', 3);
                 } else {
-                    state.powerupTimer = 10;
-                    state.dmgMultiplier = 2;
+                    state.powerupTimer = 10; state.dmgMultiplier = 2;
                     DOM.mainArea.classList.add('powerup-glow');
                     createFloatingText(window.innerWidth/2, window.innerHeight/2, "POWER OVERWHELMING", '#c084fc');
                 }
-                state.chestActive = false;
-                DOM.chestBox.classList.add('opacity-30', 'grayscale', 'pointer-events-none');
+                state.chestActive = false; DOM.chestBox.classList.add('opacity-30', 'grayscale', 'pointer-events-none');
                 DOM.chestStatus.textContent = "Empty";
                 saveState();
             }
         };
 
         function updateBoss(dtMs) {
-            if (state.mode !== 'boss') return;
-            const boss = state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex];
+            if (state.mode === 'bonfire') return;
+            const boss = (state.mode === 'dungeon') ? state.tempBoss : (state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex]);
             state.bossTimer += dtMs;
             
             if (state.bossState === 'idle') {
                 if (state.bossTimer >= boss.attackInterval) {
                     const rand = Math.random();
                     if (boss.tutorial || rand < 0.30) {
-                        state.bossState = 'windup_mega';
-                        state.parryClicks = 0;
+                        state.bossState = 'windup_mega'; state.parryClicks = 0;
                         let baseRequired = 12 + (state.ngPlus * 3) + (state.currentBossIndex * 2);
                         state.requiredParryClicks = Math.max(1, baseRequired - state.levels.parry);
-                        DOM.parryCount.textContent = 0;
-                        DOM.parryNeeded.textContent = state.requiredParryClicks;
-                        DOM.parryIndicator.classList.remove('hidden');
-                        DOM.targetBoss.classList.add('boss-mega-windup');
+                        DOM.parryCount.textContent = 0; DOM.parryNeeded.textContent = state.requiredParryClicks;
+                        DOM.parryIndicator.classList.remove('hidden'); DOM.targetBoss.classList.add('boss-mega-windup');
                     } else {
-                        state.bossState = 'windup_normal';
-                        DOM.targetBoss.classList.add('boss-windup');
+                        state.bossState = 'windup_normal'; DOM.targetBoss.classList.add('boss-windup');
                     }
-                    
-                    state.bossTimer = 0;
-                    DOM.bossIndicator.style.opacity = '1';
-                    DOM.bossIndicator.style.transform = 'scale(0.8)';
+                    state.bossTimer = 0; DOM.bossIndicator.style.opacity = '1'; DOM.bossIndicator.style.transform = 'scale(0.8)';
                 }
             } else if (state.bossState.startsWith('windup')) {
                 let actualWindup = boss.windupTime;
-                
                 if (state.bossState === 'windup_mega') {
                     const effectiveIndex = state.secretBossActive ? 7 : (state.currentBossIndex + (state.ngPlus * 5));
-                    const earlyGameCushion = Math.max(0, 2000 - (effectiveIndex * 300));
-                    actualWindup += 800 + earlyGameCushion;
+                    actualWindup += 800 + Math.max(0, 2000 - (effectiveIndex * 300));
                 }
-
-                const progress = state.bossTimer / actualWindup;
-                DOM.bossIndicator.style.transform = `scale(${1.5 - progress * 0.7})`;
-
+                DOM.bossIndicator.style.transform = `scale(${1.5 - (state.bossTimer / actualWindup) * 0.7})`;
                 if (state.bossTimer >= actualWindup) {
                     const requiredDodge = state.bossState.split('_')[1];
-                    state.bossState = 'idle';
-                    state.bossTimer = 0;
-                    DOM.bossIndicator.style.opacity = '0';
-                    DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
+                    state.bossState = 'idle'; state.bossTimer = 0;
+                    DOM.bossIndicator.style.opacity = '0'; DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
                     DOM.parryIndicator.classList.add('hidden');
-                    
-                    bossStrike(boss.attackDmg, requiredDodge);
+                    bossStrike(boss.attackDmg, requiredDodge, boss);
                 }
             }
         }
 
-        function bossStrike(damage, requiredDodge) {
-            const boss = state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex];
+        function bossStrike(damage, requiredDodge, boss) {
             let dodged = false;
-            
             if (requiredDodge === 'mega') {
                 if (state.parryClicks >= state.requiredParryClicks) {
                     dodged = true;
                     const counterDamage = (boss.maxHp * 0.15) + ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult * 10);
                     state.bossHp -= counterDamage;
-                    createFloatingText(window.innerWidth/2, window.innerHeight/2, `💥 PARRY COUNTER! -${Math.floor(counterDamage).toLocaleString()}`, "#fde047", 1.8, -60);
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, `💥 PARRY COUNTER! -${formatLargeNumberDisplay(counterDamage)}`, "#fde047", 1.8, -60);
                     if (state.bossHp <= 0) { defeatBoss(); return; }
                 }
-            } else {
-                if (state.isDodging) {
-                    dodged = true;
-                }
-            }
+            } else { if (state.isDodging) dodged = true; }
 
             if (dodged) {
                 if (requiredDodge !== 'mega') createFloatingText(window.innerWidth/2, window.innerHeight/2, "DODGED", "#3b82f6");
             } else {
                 state.hp -= damage;
-                DOM.mainArea.classList.remove('shake');
-                void DOM.mainArea.offsetWidth;
-                DOM.mainArea.classList.add('shake');
+                DOM.mainArea.classList.remove('shake'); void DOM.mainArea.offsetWidth; DOM.mainArea.classList.add('shake');
                 if (state.hp <= 0) die();
             }
         }
 
         window.challengeBoss = () => {
-            if (state.isPaused || state.hp <= 0) return;
+            if (state.isPaused || state.hp <= 0 || state.mode !== 'bonfire') return;
             if (state.currentBossIndex >= state.activeBosses.length) return;
             const boss = state.activeBosses[state.currentBossIndex];
-            state.bossHp = boss.maxHp;
-            state.bossTimer = 0;
-            state.bossState = 'idle';
-            DOM.bossName.textContent = boss.name;
-            DOM.bossIcon.className = `fa-solid ${boss.icon}`;
-            
-            if (state.sunQueenDefeated) {
-                DOM.sunKnightsTag.classList.remove('hidden');
-            } else {
-                DOM.sunKnightsTag.classList.add('hidden');
-            }
-            
-            setMode('boss');
+            setupCombatEncounter(boss.name, boss.icon, boss.maxHp, 'boss');
+            DOM.sunKnightsTag.classList.toggle('hidden', !state.sunQueenDefeated);
         };
 
+        window.enterDungeon = () => {
+            if (state.isPaused || state.hp <= 0 || state.mode !== 'bonfire') return;
+            state.dungeonIndex = 0;
+            spawnDungeonEnemy();
+        };
+
+        function spawnDungeonEnemy() {
+            let isMiniBoss = state.dungeonIndex >= 5;
+            let hpMult = Math.pow(3, state.ngPlus) * (isMiniBoss ? 2 : 0.5);
+            let soulReward = 20000 * Math.pow(5, state.ngPlus) * (isMiniBoss ? 3 : 1);
+            state.tempBoss = { 
+                name: isMiniBoss ? "Dungeon Warden" : `Dungeon Hollow ${state.dungeonIndex + 1}/5`, 
+                maxHp: 8000 * hpMult, attackDmg: (isMiniBoss ? 150 : 50) * Math.pow(3, state.ngPlus), 
+                attackInterval: isMiniBoss ? 1800 : 3000, windupTime: 800, icon: isMiniBoss ? "fa-chess-rook" : "fa-ghost", soulsReward: soulReward 
+            };
+            setupCombatEncounter(state.tempBoss.name, state.tempBoss.icon, state.tempBoss.maxHp, 'dungeon');
+        }
+
+        function setupCombatEncounter(name, icon, hp, modeStr) {
+            state.bossHp = hp; state.bossTimer = 0; state.bossState = 'idle';
+            DOM.bossName.textContent = name; DOM.bossIcon.className = `fa-solid ${icon}`;
+            setMode(modeStr);
+        }
+
         function triggerBossWeaponChest() {
-            state.chestActive = true;
-            DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none');
-            DOM.chestBox.classList.add('powerup-glow');
-            DOM.chestStatus.textContent = "Loot Boss!";
+            state.chestActive = true; DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none');
+            DOM.chestBox.classList.add('powerup-glow'); DOM.chestStatus.textContent = "Loot Boss!";
         }
 
         function defeatBoss() {
             state.bossDeaths = 0;
+            if (state.mode === 'dungeon') {
+                state.souls += state.tempBoss.soulsReward * state.permanentMult * state.maidenBuffs;
+                state.dungeonIndex++;
+                if (state.dungeonIndex > 5) {
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "DUNGEON CLEARED", "#c084fc", 3);
+                    setMode('bonfire');
+                } else { spawnDungeonEnemy(); }
+                saveState(); return;
+            }
+
             if (state.secretBossActive) {
-                state.souls += state.tempBoss.soulsReward * state.permanentMult;
+                state.souls += state.tempBoss.soulsReward * state.permanentMult * state.maidenBuffs;
                 state.secretBossActive = false;
                 createFloatingText(window.innerWidth/2, window.innerHeight/2, "SECRET DEFEATED", "#c084fc", 3);
-                setMode('bonfire');
-                saveState();
-                return;
+                setMode('bonfire'); saveState(); return;
             }
 
             const boss = state.activeBosses[state.currentBossIndex];
-            state.souls += boss.soulsReward * state.permanentMult;
+            state.souls += boss.soulsReward * state.permanentMult * state.maidenBuffs;
             
-            if (state.currentBossIndex === 3) {
+            if (state.currentBossIndex === 3 && !state.sunQueenDefeated) {
                 state.sunQueenDefeated = true;
                 createFloatingText(window.innerWidth/2, window.innerHeight/2 - 40, "☀️ SUN KNIGHTS UNLOCKED FOR BOSS ENCOUNTERS!", "#facc15", 4, -40);
+                DOM.btnDungeon.classList.remove('hidden');
             }
 
-            if (state.currentBossIndex >= 7 && state.weaponIndex < state.weapons.length - 1) {
-                state.pendingWeaponChest = true;
-            }
+            if (state.currentBossIndex >= 7 && state.weaponIndex < state.weapons.length - 1) state.pendingWeaponChest = true;
+            if (state.currentBossIndex >= 5) document.getElementById('upg-special').classList.remove('hidden');
 
             state.currentBossIndex++;
             setMode('bonfire');
             
             if (state.currentBossIndex >= state.activeBosses.length) {
-                state.ngPlus++;
-                state.currentBossIndex = 0;
-                populateBosses();
+                state.ngPlus++; state.currentBossIndex = 0; populateBosses();
+                
+                // Reset stats upon NG+
+                state.levels = { vigor: 1, endurance: 1, strength: 1, parry: 0, special: 1 };
+                state.maxHp = 100; state.hp = 100; state.maxStamina = 100; state.stamina = 100; state.staminaRegen = 25;
+                state.costs = { vigor: 100, endurance: 100, strength: 150, parry: 500, special: 5000 };
+
                 DOM.locName.textContent = "Kiln of the First Flame";
                 createFloatingText(window.innerWidth/2, 100, `JOURNEY ${state.ngPlus+1} BEGINS`, "#c084fc", 3);
-            } else {
-                DOM.locName.textContent = `Area ${state.currentBossIndex + 1}`;
-            }
+            } else { DOM.locName.textContent = `Area ${state.currentBossIndex + 1}`; }
 
-            if (state.pendingWeaponChest) {
-                triggerBossWeaponChest();
-            }
-
+            if (state.pendingWeaponChest) triggerBossWeaponChest();
             saveState();
         }
 
         function die() {
-            state.hp = 0;
-            DOM.parryIndicator.classList.add('hidden');
+            state.hp = 0; DOM.parryIndicator.classList.add('hidden');
 
             if (state.mode === 'boss') {
                 state.bossDeaths++;
                 if (state.bossDeaths >= 3) {
-                    state.souls = 0;
-                    state.bloodstain.active = false;
-                    state.bloodstain.souls = 0;
-                    state.bossDeaths = 0;
+                    state.souls = 0; state.bloodstain.active = false; state.bloodstain.souls = 0; state.bossDeaths = 0;
                     DOM.deathSub.innerHTML = `<span class="text-red-500 font-bold block mb-1">YOUR SPIRIT HAS SHATTERED</span> 3 defeats to the same boss. All held souls are permanently lost.`;
                 } else {
-                    state.bloodstain.active = true;
-                    state.bloodstain.souls = Math.floor(state.souls);
-                    state.bloodstain.isMemory = false;
+                    state.bloodstain.active = true; state.bloodstain.souls = Math.floor(state.souls); state.bloodstain.isMemory = false;
                     state.souls = 0;
                     DOM.deathSub.innerHTML = `<span class="text-zinc-400">Your souls remain at your bloodstain.</span><br><span class="text-red-400 font-mono mt-2 block">Embers: ${3 - state.bossDeaths} of 3 remaining</span>`;
                 }
             } else {
-                state.bloodstain.active = true;
-                state.bloodstain.souls = Math.floor(state.souls);
-                state.bloodstain.isMemory = false;
-                state.souls = 0;
-                DOM.deathSub.innerHTML = `<span class="text-zinc-400">Souls lost to the bloodstain.</span>`;
+                state.bloodstain.active = true; state.bloodstain.souls = Math.floor(state.souls); state.bloodstain.isMemory = false;
+                state.souls = 0; DOM.deathSub.innerHTML = `<span class="text-zinc-400">Souls lost to the bloodstain.</span>`;
             }
 
             DOM.deathScreen.classList.add('active');
-            setMode('bonfire');
-            saveState();
+            setMode('bonfire'); saveState();
         }
 
-        window.respawn = () => {
-            DOM.deathScreen.classList.remove('active');
-            state.hp = state.maxHp; state.estus = state.maxEstus; state.stamina = state.maxStamina;
-            state.secretBossActive = false;
-        };
-
-        window.recoverBloodstain = () => {
-            if (!state.bloodstain.active || state.isPaused || state.hp <= 0) return;
-            state.souls += state.bloodstain.souls;
-            state.bloodstain.active = false;
-            state.bloodstain.souls = 0;
-            state.bloodstain.isMemory = false;
-            saveState();
-        };
+        window.respawn = () => { DOM.deathScreen.classList.remove('active'); state.hp = state.maxHp; state.estus = state.maxEstus; state.stamina = state.maxStamina; state.secretBossActive = false; };
+        window.recoverBloodstain = () => { if (!state.bloodstain.active || state.isPaused || state.hp <= 0) return; state.souls += state.bloodstain.souls; state.bloodstain.active = false; state.bloodstain.souls = 0; state.bloodstain.isMemory = false; saveState(); };
 
         window.restAtBonfire = () => {
             if (state.isPaused || state.hp <= 0) return;
             state.hp = state.maxHp; state.estus = state.maxEstus;
-            if (state.mode === 'boss') setMode('bonfire');
+            if (state.mode !== 'bonfire') setMode('bonfire');
             
-            if (state.pendingWeaponChest) {
-                triggerBossWeaponChest();
-            } else if (Math.random() < 0.25) {
-                state.chestActive = true;
-                DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none');
-                DOM.chestStatus.textContent = "Ready!";
-            } else {
-                state.chestActive = false;
-                DOM.chestBox.classList.add('opacity-30', 'grayscale', 'pointer-events-none');
-                DOM.chestStatus.textContent = "Empty";
-            }
+            if (state.pendingWeaponChest) triggerBossWeaponChest();
+            else if (Math.random() < 0.25) { state.chestActive = true; DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none'); DOM.chestStatus.textContent = "Ready!"; }
+            else { state.chestActive = false; DOM.chestBox.classList.add('opacity-30', 'grayscale', 'pointer-events-none'); DOM.chestStatus.textContent = "Empty"; }
 
             if (Math.random() < 0.35) spawnMaiden();
             else DOM.targetMaiden.classList.add('hidden');
@@ -1069,103 +1104,76 @@
         function spawnMaiden() {
             DOM.targetMaiden.classList.remove('hidden');
             const r = Math.random();
-            if (r < 0.25) state.maidenType = 1;
-            else if (r < 0.50) state.maidenType = 2;
-            else if (r < 0.75) state.maidenType = 3;
-            else state.maidenType = 4;
+            if (r < 0.20) state.maidenType = 1;
+            else if (r < 0.40) state.maidenType = 2;
+            else if (r < 0.60) state.maidenType = 3;
+            else if (r < 0.80) state.maidenType = 4;
+            else state.maidenType = 5;
         }
 
         window.interactMaiden = () => {
             if(state.isPaused || state.hp <= 0) return;
-            DOM.maidenModal.classList.remove('hidden');
-            DOM.maidenModal.classList.add('flex');
+            DOM.maidenModal.classList.remove('hidden'); DOM.maidenModal.classList.add('flex');
             
-            if (state.maidenType === 1) {
-                DOM.maidenDialogue.textContent = `"Allow me to soothe your burden. Accept my blessing?" (Restores Estus & Grants Powerup)`;
-            } else if (state.maidenType === 2) {
-                DOM.maidenDialogue.textContent = `"Sacrifice half of your current souls, and I shall permanently magnify your strength."`;
-            } else if (state.maidenType === 3) {
-                DOM.maidenDialogue.textContent = `"A shadow of the Old Lords slumbers near. Shall I awaken it for you to challenge?"`;
-            } else if (state.maidenType === 4) {
-                DOM.maidenDialogue.textContent = `"A fallen warrior left these memories behind. Take them." (Grants massive bulk souls)`;
-            }
+            if (state.maidenType === 1) DOM.maidenDialogue.textContent = `"Allow me to soothe your burden. Accept my blessing?" (Restores Estus & Grants Powerup)`;
+            else if (state.maidenType === 2) DOM.maidenDialogue.textContent = `"Sacrifice half of your current souls, and I shall permanently magnify your strength."`;
+            else if (state.maidenType === 3) DOM.maidenDialogue.textContent = `"A shadow of the Old Lords slumbers near. Shall I awaken it for you to challenge?"`;
+            else if (state.maidenType === 4) DOM.maidenDialogue.textContent = `"A fallen warrior left these memories behind. Take them." (Grants massive bulk souls)`;
+            else if (state.maidenType === 5) DOM.maidenDialogue.textContent = `"Tithe 10% of your souls, and receive my persistent blessing." (+10% permanent soul gain multiplier, stacks)`;
         };
 
         window.acceptMaidenOffer = () => {
-            DOM.maidenModal.classList.add('hidden');
-            DOM.maidenModal.classList.remove('flex');
-            DOM.targetMaiden.classList.add('hidden');
+            DOM.maidenModal.classList.add('hidden'); DOM.maidenModal.classList.remove('flex'); DOM.targetMaiden.classList.add('hidden');
             
             if (state.maidenType === 1) {
-                state.estus = state.maxEstus;
-                state.chestActive = true;
-                DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none');
-                DOM.chestStatus.textContent = "Ready!";
+                state.estus = state.maxEstus; state.chestActive = true; DOM.chestBox.classList.remove('opacity-30', 'grayscale', 'pointer-events-none'); DOM.chestStatus.textContent = "Ready!";
                 createFloatingText(window.innerWidth/2, window.innerHeight/2, "BLESSED", "#a855f7");
             } else if (state.maidenType === 2) {
-                state.souls = Math.floor(state.souls / 2);
-                state.permanentMult += 0.5;
+                state.souls = Math.floor(state.souls / 2); state.permanentMult += 0.5;
                 createFloatingText(window.innerWidth/2, window.innerHeight/2, "STRENGTHENED", "#c5a961");
             } else if (state.maidenType === 3) {
                 state.secretBossActive = true;
                 state.tempBoss = { name: "Nameless Shade", maxHp: 22000 * Math.pow(3, state.ngPlus), attackDmg: 200 * Math.pow(3, state.ngPlus), attackInterval: 1500, windupTime: 500, icon: "fa-ghost", soulsReward: 50000 * Math.pow(5, state.ngPlus) };
-                state.bossHp = state.tempBoss.maxHp;
-                state.bossTimer = 0;
-                state.bossState = 'idle';
-                DOM.bossName.textContent = state.tempBoss.name;
-                DOM.bossIcon.className = `fa-solid ${state.tempBoss.icon}`;
-                setMode('boss');
+                setupCombatEncounter(state.tempBoss.name, state.tempBoss.icon, state.tempBoss.maxHp, 'boss');
             } else if (state.maidenType === 4) {
-                let gift = 5000 * Math.pow(3, state.ngPlus) * state.permanentMult;
-                state.souls += gift;
-                createFloatingText(window.innerWidth/2, window.innerHeight/2, `+${gift} SOULS`, "#c5a961", 2);
+                let gift = 5000 * Math.pow(3, state.ngPlus) * state.permanentMult * state.maidenBuffs;
+                state.souls += gift; createFloatingText(window.innerWidth/2, window.innerHeight/2, `+${formatLargeNumberDisplay(gift)} SOULS`, "#c5a961", 2);
+            } else if (state.maidenType === 5) {
+                state.souls -= (state.souls * 0.1);
+                state.maidenBuffs += 0.1;
+                createFloatingText(window.innerWidth/2, window.innerHeight/2, `MULT STACKED (x${state.maidenBuffs.toFixed(2)})`, "#fde047", 2);
             }
             saveState();
         };
-
-        window.closeMaidenModal = () => {
-            DOM.maidenModal.classList.add('hidden');
-            DOM.maidenModal.classList.remove('flex');
-        };
+        window.closeMaidenModal = () => { DOM.maidenModal.classList.add('hidden'); DOM.maidenModal.classList.remove('flex'); };
 
         function setMode(newMode) {
             state.mode = newMode;
             if (newMode === 'bonfire') {
                 DOM.targetBonfire.classList.remove('hidden'); DOM.targetBoss.classList.add('hidden');
-                DOM.bossUi.classList.add('hidden'); DOM.btnChallenge.classList.remove('hidden');
+                DOM.bossUi.classList.add('hidden'); DOM.btnChallenge.classList.remove('hidden'); 
+                if(state.sunQueenDefeated) DOM.btnDungeon.classList.remove('hidden');
                 DOM.dodgeContainer.classList.add('hidden'); DOM.btnRest.classList.remove('opacity-50', 'pointer-events-none');
                 DOM.bossIndicator.style.opacity = '0'; DOM.targetBoss.classList.remove('boss-windup', 'boss-mega-windup');
-                DOM.parryIndicator.classList.add('hidden');
-                DOM.sunKnightsTag.classList.add('hidden');
-                if (DOM.mobileBossHud) {
-                    DOM.mobileBossHud.classList.add('hidden');
-                    DOM.mobileBossHud.classList.remove('flex');
-                }
+                DOM.parryIndicator.classList.add('hidden'); DOM.sunKnightsTag.classList.add('hidden');
+                if (DOM.mobileBossHud) { DOM.mobileBossHud.classList.add('hidden'); DOM.mobileBossHud.classList.remove('flex'); }
             } else {
                 DOM.targetBonfire.classList.add('hidden'); DOM.targetBoss.classList.remove('hidden');
                 DOM.bossUi.classList.remove('hidden'); DOM.bossUi.classList.add('flex');
-                DOM.btnChallenge.classList.add('hidden'); DOM.dodgeContainer.classList.remove('hidden'); DOM.dodgeContainer.classList.add('flex');
-                DOM.btnRest.classList.add('opacity-50', 'pointer-events-none');
-                DOM.targetMaiden.classList.add('hidden');
-                if (DOM.mobileBossHud) {
-                    DOM.mobileBossHud.classList.remove('hidden');
-                    DOM.mobileBossHud.classList.add('flex');
-                }
+                DOM.btnChallenge.classList.add('hidden'); DOM.btnDungeon.classList.add('hidden');
+                DOM.dodgeContainer.classList.remove('hidden'); DOM.dodgeContainer.classList.add('flex');
+                DOM.btnRest.classList.add('opacity-50', 'pointer-events-none'); DOM.targetMaiden.classList.add('hidden');
+                if (DOM.mobileBossHud) { DOM.mobileBossHud.classList.remove('hidden'); DOM.mobileBossHud.classList.add('flex'); }
             }
         }
 
         window.levelUp = (stat) => {
             if (state.isPaused || state.hp <= 0) return;
-            if (stat === 'vigor' && state.levels.vigor >= 50) return;
             const cost = state.costs[stat];
             if (state.souls >= cost) {
                 state.souls -= cost; state.levels[stat]++;
-                
-                if (stat === 'parry') {
-                    state.costs[stat] = Math.floor(500 * Math.pow(1.5, state.levels[stat]));
-                } else {
-                    state.costs[stat] = Math.floor((100 + (stat==='strength'?50:0)) * Math.pow(1.15, state.levels[stat]-1));
-                }
+                if (stat === 'parry') state.costs[stat] = Math.floor(500 * Math.pow(1.5, state.levels[stat]));
+                else state.costs[stat] = Math.floor((100 + (stat==='strength'?50:0) + (stat==='special'?4900:0)) * Math.pow(1.15, state.levels[stat]-1));
 
                 if (stat === 'vigor') { state.maxHp += 20; state.hp += 20; }
                 else if (stat === 'endurance') { state.maxStamina += 15; state.staminaRegen += 2; }
@@ -1176,19 +1184,14 @@
         window.upgradeWeapon = () => {
             if (state.isPaused || state.hp <= 0) return;
             const next = state.weapons[state.weaponIndex + 1];
-            if (next && state.souls >= next.cost) {
-                state.souls -= next.cost; state.weaponIndex++;
-                saveState();
-            }
+            if (next && state.souls >= next.cost) { state.souls -= next.cost; state.weaponIndex++; saveState(); }
         };
         
         window.upgradeEstus = () => {
             if (state.isPaused || state.hp <= 0) return;
             if (state.souls >= state.estusUpgradeCost) {
-                state.souls -= state.estusUpgradeCost;
-                state.maxEstus++; state.estus++;
-                state.estusUpgradeCost *= 2.5;
-                saveState();
+                state.souls -= state.estusUpgradeCost; state.maxEstus++; state.estus++;
+                state.estusUpgradeCost *= 2.5; saveState();
             }
         };
 
@@ -1196,74 +1199,44 @@
             if (state.isPaused || state.hp <= 0) return;
             const summon = state.summons[type];
             const cost = Math.floor(summon.baseCost * Math.pow(1.15, summon.qty));
-            if (state.souls >= cost) {
-                state.souls -= cost;
-                summon.qty++;
-                saveState();
-            }
+            if (state.souls >= cost) { state.souls -= cost; summon.qty++; saveState(); }
         };
 
         window.switchTab = (tab) => {
-            if (tab === 'summons') {
-                document.getElementById('panel-summons').classList.remove('hidden');
-                document.getElementById('panel-spells').classList.add('hidden');
-                document.getElementById('tab-summons').classList.add('border-b-2', 'border-[#c5a961]', 'text-[#c5a961]');
-                document.getElementById('tab-summons').classList.remove('text-zinc-500');
-                document.getElementById('tab-spells').classList.remove('border-b-2', 'border-[#c5a961]', 'text-[#c5a961]');
-                document.getElementById('tab-spells').classList.add('text-zinc-500');
-            } else {
-                document.getElementById('panel-summons').classList.add('hidden');
-                document.getElementById('panel-spells').classList.remove('hidden');
-                document.getElementById('tab-spells').classList.add('border-b-2', 'border-[#c5a961]', 'text-[#c5a961]');
-                document.getElementById('tab-spells').classList.remove('text-zinc-500');
-                document.getElementById('tab-summons').classList.remove('border-b-2', 'border-[#c5a961]', 'text-[#c5a961]');
-                document.getElementById('tab-summons').classList.add('text-zinc-500');
-            }
+            const tabs = ['summons', 'spells', 'leaderboard'];
+            tabs.forEach(t => {
+                const isMatch = t === tab;
+                document.getElementById(`panel-${t}`).classList.toggle('hidden', !isMatch);
+                const btn = document.getElementById(`tab-${t}`);
+                if(isMatch) { btn.classList.add('border-b-2', 'border-[#c5a961]', 'text-[#c5a961]'); btn.classList.remove('text-zinc-500'); }
+                else { btn.classList.remove('border-b-2', 'border-[#c5a961]', 'text-[#c5a961]'); btn.classList.add('text-zinc-500'); }
+            });
+            if(tab === 'leaderboard') window.fetchLeaderboard();
         };
 
         window.togglePause = () => {
             if(state.hp <= 0) return;
             state.isPaused = !state.isPaused;
-            if (state.isPaused) {
-                DOM.pauseMenu.classList.remove('hidden');
-                DOM.pauseMenu.classList.add('flex');
-            } else {
-                DOM.pauseMenu.classList.add('hidden');
-                DOM.pauseMenu.classList.remove('flex');
-                lastTime = performance.now();
-            }
+            if (state.isPaused) { DOM.pauseMenu.classList.remove('hidden'); DOM.pauseMenu.classList.add('flex'); }
+            else { DOM.pauseMenu.classList.add('hidden'); DOM.pauseMenu.classList.remove('flex'); lastTime = performance.now(); }
+        };
+        
+        window.exportSave = () => { const s = btoa(localStorage.getItem('soulsClickerSave_v5')); prompt("Copy your save data:", s); };
+        window.importSave = () => { 
+            const d = prompt("Paste your save data:"); 
+            if(d){ try { localStorage.setItem('soulsClickerSave_v5', atob(d)); location.reload(); } catch(e){ alert("Invalid Save!"); }}
         };
 
-        window.saveAndQuit = () => {
-            saveState();
-            location.reload();
-        };
+        window.saveAndQuit = () => { saveState(); location.reload(); };
 
         function saveState() {
             try {
                 localStorage.setItem('soulsClickerSave_v5', JSON.stringify({
-                    playerName: state.playerName,
-                    souls: state.souls,
-                    ngPlus: state.ngPlus,
-                    levels: state.levels,
-                    weaponIndex: state.weaponIndex,
-                    maxEstus: state.maxEstus,
-                    estus: state.estus,
-                    hp: state.hp,
-                    stamina: state.stamina,
-                    mode: state.mode,
-                    currentBossIndex: state.currentBossIndex,
-                    bossHp: state.bossHp,
-                    bossDeaths: state.bossDeaths,
-                    sunQueenDefeated: state.sunQueenDefeated,
-                    bloodstain: state.bloodstain,
-                    permanentMult: state.permanentMult,
-                    pendingWeaponChest: state.pendingWeaponChest,
-                    summons: {
-                        hollow: state.summons.hollow.qty,
-                        warrior: state.summons.warrior.qty,
-                        knight: state.summons.knight.qty
-                    }
+                    playerName: state.playerName, souls: state.souls, ngPlus: state.ngPlus, levels: state.levels, weaponIndex: state.weaponIndex,
+                    maxEstus: state.maxEstus, estus: state.estus, hp: state.hp, stamina: state.stamina, mode: state.mode, currentBossIndex: state.currentBossIndex,
+                    bossHp: state.bossHp, bossDeaths: state.bossDeaths, sunQueenDefeated: state.sunQueenDefeated, bloodstain: state.bloodstain,
+                    permanentMult: state.permanentMult, maidenBuffs: state.maidenBuffs, pendingWeaponChest: state.pendingWeaponChest, specialMeter: state.specialMeter,
+                    summons: { hollow: state.summons.hollow.qty, warrior: state.summons.warrior.qty, knight: state.summons.knight.qty }
                 }));
             } catch(e) {}
         }
@@ -1273,189 +1246,118 @@
                 const saved = localStorage.getItem('soulsClickerSave_v5');
                 if (saved) {
                     const data = JSON.parse(saved);
-                    state.playerName = data.playerName || "Undead";
-                    state.souls = data.souls || 0;
-                    state.ngPlus = data.ngPlus || 0;
-                    state.levels = data.levels || { vigor: 1, endurance: 1, strength: 1, parry: 0 };
-                    if (state.levels.parry === undefined) state.levels.parry = 0;
+                    state.playerName = data.playerName || "Undead"; state.souls = data.souls || 0; state.ngPlus = data.ngPlus || 0;
+                    state.levels = data.levels || { vigor: 1, endurance: 1, strength: 1, parry: 0, special: 1 };
+                    if (state.levels.parry === undefined) state.levels.parry = 0; if (state.levels.special === undefined) state.levels.special = 1;
+                    state.weaponIndex = data.weaponIndex || 0; state.maxEstus = data.maxEstus || 3; state.estus = data.estus !== undefined ? data.estus : state.maxEstus;
+                    state.permanentMult = data.permanentMult || 1; state.maidenBuffs = data.maidenBuffs || 1;
+                    state.bossDeaths = data.bossDeaths || 0; state.sunQueenDefeated = data.sunQueenDefeated || false;
+                    state.mode = data.mode || 'bonfire'; state.currentBossIndex = data.currentBossIndex || 0; state.bossHp = data.bossHp || 0;
+                    state.pendingWeaponChest = data.pendingWeaponChest || false; state.specialMeter = data.specialMeter || 0;
                     
-                    state.weaponIndex = data.weaponIndex || 0;
-                    state.maxEstus = data.maxEstus || 3;
-                    state.estus = data.estus !== undefined ? data.estus : state.maxEstus;
-                    state.permanentMult = data.permanentMult || 1;
-                    state.bossDeaths = data.bossDeaths || 0;
-                    state.sunQueenDefeated = data.sunQueenDefeated || false;
-                    state.mode = data.mode || 'bonfire';
-                    state.currentBossIndex = data.currentBossIndex || 0;
-                    state.bossHp = data.bossHp || 0;
-                    state.pendingWeaponChest = data.pendingWeaponChest || false;
-                    
-                    if (data.bloodstain) {
-                        state.bloodstain = data.bloodstain;
-                    }
-                    if (data.summons) {
-                        state.summons.hollow.qty = data.summons.hollow || 0;
-                        state.summons.warrior.qty = data.summons.warrior || 0;
-                        state.summons.knight.qty = data.summons.knight || 0;
-                    }
+                    if (data.bloodstain) state.bloodstain = data.bloodstain;
+                    if (data.summons) { state.summons.hollow.qty = data.summons.hollow || 0; state.summons.warrior.qty = data.summons.warrior || 0; state.summons.knight.qty = data.summons.knight || 0; }
 
-                    state.maxHp = 100 + ((state.levels.vigor - 1) * 20);
-                    state.hp = data.hp !== undefined ? data.hp : state.maxHp;
-                    state.maxStamina = 100 + ((state.levels.endurance - 1) * 15);
-                    state.staminaRegen = 25 + ((state.levels.endurance - 1) * 2);
+                    state.maxHp = 100 + ((state.levels.vigor - 1) * 20); state.hp = data.hp !== undefined ? data.hp : state.maxHp;
+                    state.maxStamina = 100 + ((state.levels.endurance - 1) * 15); state.staminaRegen = 25 + ((state.levels.endurance - 1) * 2);
                     state.stamina = data.stamina !== undefined ? data.stamina : state.maxStamina;
                     
-                    state.costs.vigor = Math.floor(100 * Math.pow(1.15, state.levels.vigor-1));
-                    state.costs.endurance = Math.floor(100 * Math.pow(1.15, state.levels.endurance-1));
-                    state.costs.strength = Math.floor(150 * Math.pow(1.15, state.levels.strength-1));
-                    state.costs.parry = Math.floor(500 * Math.pow(1.5, state.levels.parry));
-                    
-                    for (let i = 0; i < state.maxEstus - 3; i++) {
-                        state.estusUpgradeCost *= 2.5;
-                    }
+                    state.costs.vigor = Math.floor(100 * Math.pow(1.15, state.levels.vigor-1)); state.costs.endurance = Math.floor(100 * Math.pow(1.15, state.levels.endurance-1));
+                    state.costs.strength = Math.floor(150 * Math.pow(1.15, state.levels.strength-1)); state.costs.parry = Math.floor(500 * Math.pow(1.5, state.levels.parry));
+                    state.costs.special = Math.floor(5000 * Math.pow(1.15, state.levels.special-1));
+                    for (let i = 0; i < state.maxEstus - 3; i++) state.estusUpgradeCost *= 2.5;
 
                     populateBosses();
+                    if(state.sunQueenDefeated) DOM.btnDungeon.classList.remove('hidden');
+                    if(state.currentBossIndex >= 5) document.getElementById('upg-special').classList.remove('hidden');
 
-                    if (state.mode === 'boss') {
+                    if (state.mode === 'boss' || state.mode === 'dungeon') {
                         const boss = state.activeBosses[state.currentBossIndex];
-                        if (boss) {
-                            DOM.bossName.textContent = boss.name;
-                            DOM.bossIcon.className = `fa-solid ${boss.icon}`;
-                            if (state.bossHp <= 0) {
-                                state.bossHp = boss.maxHp;
-                            }
-                            setMode('boss');
-                        } else {
-                            setMode('bonfire');
-                        }
-                    } else if (state.pendingWeaponChest) {
-                        triggerBossWeaponChest();
-                    } else {
-                        setMode('bonfire');
-                    }
-
+                        if (boss) { setupCombatEncounter(boss.name, boss.icon, state.bossHp <= 0 ? boss.maxHp : state.bossHp, 'boss'); } 
+                        else { setMode('bonfire'); }
+                    } else if (state.pendingWeaponChest) { triggerBossWeaponChest(); } 
+                    else { setMode('bonfire'); }
                     return true;
                 }
             } catch(e) {}
             return false;
         }
 
+        function formatLargeNumberDisplay(num) {
+            if (num >= 1e9) return (num / 1e9).toFixed(2) + 'B';
+            if (num >= 1e6) return (num / 1e6).toFixed(2) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'k';
+            return Math.floor(num).toLocaleString();
+        }
+
         function updateUI() {
-            DOM.souls.textContent = Math.floor(state.souls).toLocaleString();
-            DOM.sps.textContent = `${(getSPS() * state.permanentMult).toFixed(1)} Souls / sec`;
+            DOM.souls.textContent = formatLargeNumberDisplay(state.souls);
+            DOM.sps.textContent = `${formatLargeNumberDisplay(getSPS() * state.permanentMult * state.maidenBuffs)} Souls / sec`;
             
-            DOM.hpText.textContent = `${Math.ceil(state.hp)} / ${state.maxHp}`;
-            DOM.hpBar.style.width = `${(state.hp / state.maxHp) * 100}%`;
+            DOM.hpText.textContent = `${Math.ceil(state.hp).toLocaleString()} / ${state.maxHp.toLocaleString()}`;
+            DOM.hpBar.style.width = `${Math.min(100, Math.max(0, (state.hp / state.maxHp) * 100))}%`;
             if (DOM.mobileHpText) DOM.mobileHpText.textContent = `${Math.ceil(state.hp)} / ${state.maxHp}`;
-            if (DOM.mobileHpBar) DOM.mobileHpBar.style.width = `${(state.hp / state.maxHp) * 100}%`;
+            if (DOM.mobileHpBar) DOM.mobileHpBar.style.width = `${Math.min(100, Math.max(0, (state.hp / state.maxHp) * 100))}%`;
             
             DOM.stamText.textContent = `${Math.floor(state.stamina)} / ${state.maxStamina}`;
-            DOM.stamBar.style.width = `${(state.stamina / state.maxStamina) * 100}%`;
+            DOM.stamBar.style.width = `${Math.min(100, Math.max(0, (state.stamina / state.maxStamina) * 100))}%`;
             if (DOM.mobileStamText) DOM.mobileStamText.textContent = `${Math.floor(state.stamina)} / ${state.maxStamina}`;
-            if (DOM.mobileStamBar) DOM.mobileStamBar.style.width = `${(state.stamina / state.maxStamina) * 100}%`;
+            if (DOM.mobileStamBar) DOM.mobileStamBar.style.width = `${Math.min(100, Math.max(0, (state.stamina / state.maxStamina) * 100))}%`;
             
             DOM.estusText.textContent = state.estus;
+            DOM.specialBar.style.width = `${(state.specialMeter / state.specialMax) * 100}%`;
+            DOM.specialText.textContent = `${Math.floor((state.specialMeter / state.specialMax) * 100)}%`;
             
             const passiveSPS = getSPS() * state.permanentMult;
             const rateIndex = passiveSPS + (state.skullSpeedBoost * 100);
-            const speedFactor = 1 + (rateIndex / 50);
-            const computedDuration = Math.max(0.12, 3 / speedFactor);
-            DOM.pulsingSkull.style.setProperty('--pulse-dur', `${computedDuration}s`);
+            DOM.pulsingSkull.style.setProperty('--pulse-dur', `${Math.max(0.12, 3 / (1 + (rateIndex / 50)))}s`);
 
-            if (state.mode === 'boss') {
+            if (state.mode === 'boss' || state.mode === 'dungeon') {
                 DOM.soulEmbersPanel.classList.remove('hidden');
-                const remaining = Math.max(0, 3 - state.bossDeaths);
                 let iconsHTML = '';
-                for (let i = 0; i < 3; i++) {
-                    if (i < remaining) {
-                        iconsHTML += '<span class="ember-icon text-red-500 text-lg animate-pulse select-none">🔥</span>';
-                    } else {
-                        iconsHTML += '<span class="ember-icon text-zinc-700 text-lg opacity-40 select-none">💀</span>';
-                    }
-                }
+                for (let i = 0; i < 3; i++) iconsHTML += (i < Math.max(0, 3 - state.bossDeaths)) ? '<span class="ember-icon text-red-500 text-lg animate-pulse select-none">🔥</span>' : '<span class="ember-icon text-zinc-700 text-lg opacity-40 select-none">💀</span>';
                 DOM.soulEmbersIcons.innerHTML = iconsHTML;
-            } else {
-                DOM.soulEmbersPanel.classList.add('hidden');
-            }
-            
-            if (state.mode === 'boss') {
-                const boss = state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex];
-                DOM.bossHpBar.style.width = `${Math.max(0, (state.bossHp / boss.maxHp) * 100)}%`;
-            }
+                
+                const boss = (state.mode === 'dungeon') ? state.tempBoss : (state.secretBossActive ? state.tempBoss : state.activeBosses[state.currentBossIndex]);
+                DOM.bossHpBar.style.width = `${Math.min(100, Math.max(0, (state.bossHp / boss.maxHp) * 100))}%`;
+            } else { DOM.soulEmbersPanel.classList.add('hidden'); }
 
-            if (state.bloodstain.active) {
-                DOM.targetBloodstain.classList.remove('hidden');
-                DOM.bloodIcon.className = `fa-solid fa-droplet ${state.bloodstain.isMemory ? 'memory-glow' : 'bloodstain-glow'}`;
-            } else {
-                DOM.targetBloodstain.classList.add('hidden');
-            }
+            if (state.bloodstain.active) { DOM.targetBloodstain.classList.remove('hidden'); DOM.bloodIcon.className = `fa-solid fa-droplet ${state.bloodstain.isMemory ? 'memory-glow' : 'bloodstain-glow'}`; } 
+            else { DOM.targetBloodstain.classList.add('hidden'); }
 
-            document.getElementById('lvl-vigor').textContent = `Lv.${state.levels.vigor}`;
-            document.getElementById('cost-vigor').textContent = formatCost(state.costs.vigor);
-            document.getElementById('upg-vigor').disabled = state.souls < state.costs.vigor || state.levels.vigor >= 50;
-
-            document.getElementById('lvl-endurance').textContent = `Lv.${state.levels.endurance}`;
-            document.getElementById('cost-endurance').textContent = formatCost(state.costs.endurance);
-            document.getElementById('upg-endurance').disabled = state.souls < state.costs.endurance;
-
-            document.getElementById('lvl-strength').textContent = `Lv.${state.levels.strength}`;
-            document.getElementById('cost-strength').textContent = formatCost(state.costs.strength);
-            document.getElementById('upg-strength').disabled = state.souls < state.costs.strength;
-
-            document.getElementById('lvl-parry').textContent = `Lv.${state.levels.parry}`;
-            document.getElementById('cost-parry').textContent = formatCost(state.costs.parry);
-            document.getElementById('upg-parry').disabled = state.souls < state.costs.parry;
+            document.getElementById('lvl-vigor').textContent = `Lv.${state.levels.vigor}`; document.getElementById('cost-vigor').textContent = formatLargeNumberDisplay(state.costs.vigor); document.getElementById('upg-vigor').disabled = state.souls < state.costs.vigor;
+            document.getElementById('lvl-endurance').textContent = `Lv.${state.levels.endurance}`; document.getElementById('cost-endurance').textContent = formatLargeNumberDisplay(state.costs.endurance); document.getElementById('upg-endurance').disabled = state.souls < state.costs.endurance;
+            document.getElementById('lvl-strength').textContent = `Lv.${state.levels.strength}`; document.getElementById('cost-strength').textContent = formatLargeNumberDisplay(state.costs.strength); document.getElementById('upg-strength').disabled = state.souls < state.costs.strength;
+            document.getElementById('lvl-parry').textContent = `Lv.${state.levels.parry}`; document.getElementById('cost-parry').textContent = formatLargeNumberDisplay(state.costs.parry); document.getElementById('upg-parry').disabled = state.souls < state.costs.parry;
+            document.getElementById('lvl-special').textContent = `Lv.${state.levels.special}`; document.getElementById('cost-special').textContent = formatLargeNumberDisplay(state.costs.special); document.getElementById('upg-special').disabled = state.souls < state.costs.special;
 
             const nextWep = state.weapons[state.weaponIndex + 1];
-            if (nextWep) {
-                document.getElementById('weapon-name').textContent = `${state.weapons[state.weaponIndex].name} -> ${nextWep.name}`;
-                document.getElementById('cost-weapon').textContent = formatCost(nextWep.cost);
-                document.getElementById('upg-weapon').disabled = state.souls < nextWep.cost;
-            } else {
-                document.getElementById('weapon-name').textContent = state.weapons[state.weaponIndex].name;
-                document.getElementById('cost-weapon').textContent = "MAX";
-                document.getElementById('upg-weapon').disabled = true;
-            }
+            if (nextWep) { document.getElementById('weapon-name').textContent = `${state.weapons[state.weaponIndex].name} -> ${nextWep.name}`; document.getElementById('cost-weapon').textContent = formatLargeNumberDisplay(nextWep.cost); document.getElementById('upg-weapon').disabled = state.souls < nextWep.cost; } 
+            else { document.getElementById('weapon-name').textContent = state.weapons[state.weaponIndex].name; document.getElementById('cost-weapon').textContent = "MAX"; document.getElementById('upg-weapon').disabled = true; }
 
-            document.getElementById('cost-estus').textContent = formatCost(state.estusUpgradeCost);
-            document.getElementById('upg-estus').disabled = state.souls < state.estusUpgradeCost;
+            document.getElementById('cost-estus').textContent = formatLargeNumberDisplay(state.estusUpgradeCost); document.getElementById('upg-estus').disabled = state.souls < state.estusUpgradeCost;
 
             updateSummonUI('hollow'); updateSummonUI('warrior'); updateSummonUI('knight');
         }
 
         function updateSummonUI(type) {
-            const summon = state.summons[type];
-            const cost = Math.floor(summon.baseCost * Math.pow(1.15, summon.qty));
-            document.getElementById(`qty-${type}`).textContent = `x${summon.qty}`;
-            document.getElementById(`cost-${type}`).textContent = formatCost(cost);
+            const summon = state.summons[type]; const cost = Math.floor(summon.baseCost * Math.pow(1.15, summon.qty));
+            document.getElementById(`qty-${type}`).textContent = `x${summon.qty}`; document.getElementById(`cost-${type}`).textContent = formatLargeNumberDisplay(cost);
             document.getElementById(`sum-${type}`).disabled = state.souls < cost;
-        }
-
-        function formatCost(num) {
-            if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
-            if (num >= 1000) return (num / 1000).toFixed(1) + 'k';
-            return num.toString();
         }
 
         window.addEventListener('keydown', (e) => {
             if(state.isPaused && e.key !== 'Escape') return;
             if (state.hp <= 0) return;
+            if (document.activeElement.tagName === 'INPUT') return;
 
-            if (e.key === 'Escape') {
-                togglePause();
-            } else if (e.code === 'Space') {
-                e.preventDefault();
-                if (state.mode === 'boss') {
-                    if(state.bossState === 'windup_mega') attackBoss({clientX: window.innerWidth/2, clientY: window.innerHeight/2});
-                    else dodge('space');
-                } else {
-                    gatherSouls({clientX: window.innerWidth/2, clientY: window.innerHeight/2});
-                }
-            } else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') {
-                e.preventDefault(); useEstus();
-            } else if (e.key.toLowerCase() === 'z') {
-                useChest();
-            }
+            if (e.key === 'Escape') { togglePause(); } 
+            else if (e.code === 'Space') { e.preventDefault(); if (state.mode !== 'bonfire') { if(state.bossState === 'windup_mega') attackBoss({clientX: window.innerWidth/2, clientY: window.innerHeight/2}); else dodge('space'); } else gatherSouls({clientX: window.innerWidth/2, clientY: window.innerHeight/2}); } 
+            else if (e.code === 'ShiftLeft' || e.code === 'ShiftRight') { e.preventDefault(); useEstus(); } 
+            else if (e.key.toLowerCase() === 'z') { useChest(); }
+            else if (e.key.toLowerCase() === 'f' && state.mode === 'bonfire') { challengeBoss(); }
+            else if (e.key.toLowerCase() === 'e') { useSpecialAttack(); }
+            else if (e.key.toLowerCase() === 'r') { restAtBonfire(); }
         });
     </script>
 </body>
