@@ -132,7 +132,6 @@
             50% { transform: scale(1.3); filter: drop-shadow(0 0 12px rgba(197, 169, 97, 0.9)); }
         }
 
-        /* Landscape Mobile Optimizations */
         @media (max-width: 900px) and (orientation: landscape) {
             #main-area { flex-direction: row; }
             .min-h-[250px] { min-h: 150px; }
@@ -151,17 +150,8 @@
             <button id="btn-google" class="py-3 px-6 bg-white border border-gray-300 text-gray-800 rounded shadow hover:bg-gray-100 transition flex justify-center items-center gap-3 font-sans font-medium">
                 <i class="fa-brands fa-google text-red-500"></i> Sign in with Google
             </button>
-            <button id="btn-anon" class="py-3 px-6 bg-zinc-800 border border-zinc-600 text-zinc-300 rounded shadow hover:bg-zinc-700 transition cinzel">
-                Play as Guest
-            </button>
         </div>
         <p id="auth-loading" class="hidden text-zinc-400 mt-6 cinzel animate-pulse">Awakening...</p>
-    </div>
-
-    <div id="name-create-screen" class="fixed inset-0 bg-zinc-900 z-[90] hidden flex-col items-center justify-center bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]">
-        <h2 class="cinzel text-5xl text-zinc-200 mb-12 border-b border-[#c5a961] pb-4">Name Your Vessel</h2>
-        <input type="text" id="player-name-input" class="bg-zinc-800 text-zinc-200 border-2 border-zinc-600 rounded p-4 text-2xl cinzel text-center outline-none focus:border-[#c5a961] mb-8" placeholder="Enter Name" maxlength="20">
-        <button onclick="confirmName()" class="py-3 px-8 bg-zinc-800 border border-[#c5a961] text-[#c5a961] hover:bg-zinc-700 transition cinzel text-xl rounded shadow-lg">Awaken</button>
     </div>
 
     <div id="pause-menu" class="fixed inset-0 bg-black/90 z-[100] hidden flex-col items-center justify-center backdrop-blur-sm">
@@ -243,7 +233,7 @@
                 <button id="upg-vigor" onclick="levelUp('vigor')" class="btn-upgrade w-full p-2 rounded flex justify-between items-center text-left">
                     <div>
                         <div class="cinzel text-zinc-200 text-xs md:text-sm">Vigor <span id="lvl-vigor" class="text-zinc-500 text-[10px] md:text-xs ml-1">Lv.1</span></div>
-                        <div class="text-[9px] md:text-[10px] text-zinc-500">Max HP (+20)</div>
+                        <div class="text-[9px] md:text-[10px] text-zinc-500">Max HP</div>
                     </div>
                     <div class="text-[#c5a961] text-[10px] md:text-xs"><span id="cost-vigor">100</span> S</div>
                 </button>
@@ -257,7 +247,7 @@
                 <button id="upg-strength" onclick="levelUp('strength')" class="btn-upgrade w-full p-2 rounded flex justify-between items-center text-left">
                     <div>
                         <div class="cinzel text-zinc-200 text-xs md:text-sm">Strength <span id="lvl-strength" class="text-zinc-500 text-[10px] md:text-xs ml-1">Lv.1</span></div>
-                        <div class="text-[9px] md:text-[10px] text-zinc-500">Click Damage (+2)</div>
+                        <div class="text-[9px] md:text-[10px] text-zinc-500">Click Damage</div>
                     </div>
                     <div class="text-[#c5a961] text-[10px] md:text-xs"><span id="cost-strength">150</span> S</div>
                 </button>
@@ -371,6 +361,11 @@
                 </button>
                 
                 <div id="dodge-container" class="hidden w-full flex flex-col gap-2">
+                    <div class="flex w-full gap-2 md:hidden">
+                        <button onclick="useEstus()" class="flex-1 bg-yellow-900/50 border border-yellow-700 text-yellow-500 py-2 rounded text-sm flex items-center justify-center gap-1 active:bg-yellow-800"><i class="fa-solid fa-flask"></i> Flask</button>
+                        <button onclick="castSpell('powerWithin')" class="flex-1 bg-red-900/50 border border-red-700 text-red-500 py-2 rounded text-sm flex items-center justify-center gap-1 active:bg-red-800"><i class="fa-solid fa-fire"></i> Spell</button>
+                    </div>
+
                     <button id="special-btn" onclick="useSpecialAttack()" class="w-full bg-zinc-800 border border-zinc-700 text-zinc-500 cinzel py-2 rounded text-sm flex items-center justify-center relative overflow-hidden opacity-70">
                         <div id="special-bar" class="absolute left-0 top-0 h-full bg-sky-600 transition-all duration-200 pointer-events-none" style="width: 0%"></div>
                         <span class="z-10 relative special-text-glow flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> SPECIAL [E] <span id="special-text">0%</span></span>
@@ -427,6 +422,28 @@
                     </div>
                     <div class="text-[#c5a961] text-sm"><span id="cost-knight">3000</span> S</div>
                 </button>
+
+                <button id="sum-silver" onclick="buySummon('silver')" class="btn-upgrade w-full p-3 md:p-3 rounded justify-between items-center text-left hidden flex">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-gray-300 text-base"><i class="fa-solid fa-shield"></i></div>
+                        <div>
+                            <div class="cinzel text-zinc-200 text-base">Silver Knight <span id="qty-silver" class="text-zinc-500 text-sm ml-1">x0</span></div>
+                            <div class="text-xs text-zinc-500">150 Souls / sec</div>
+                        </div>
+                    </div>
+                    <div class="text-[#c5a961] text-sm"><span id="cost-silver">25000</span> S</div>
+                </button>
+
+                <button id="sum-dragon" onclick="buySummon('dragon')" class="btn-upgrade w-full p-3 md:p-3 rounded justify-between items-center text-left hidden flex">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-zinc-800 flex items-center justify-center text-red-400 text-base"><i class="fa-solid fa-dragon"></i></div>
+                        <div>
+                            <div class="cinzel text-zinc-200 text-base">Ancient Dragon <span id="qty-dragon" class="text-zinc-500 text-sm ml-1">x0</span></div>
+                            <div class="text-xs text-zinc-500">1000 Souls / sec</div>
+                        </div>
+                    </div>
+                    <div class="text-[#c5a961] text-sm"><span id="cost-dragon">200000</span> S</div>
+                </button>
             </div>
 
             <div id="panel-spells" class="space-y-2 md:space-y-3 hidden">
@@ -462,6 +479,17 @@
                     </div>
                     <div class="text-yellow-300 text-sm bg-yellow-900/50 px-2 py-1 rounded">15,000 S</div>
                 </button>
+
+                <button id="spell-abyss" onclick="castSpell('abyss')" class="w-full p-3 md:p-3 rounded justify-between items-center text-left bg-purple-950/30 border border-purple-900 hover:bg-purple-900/50 hover:border-purple-500 transition hidden flex">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded bg-purple-900/50 flex items-center justify-center text-purple-300 text-base"><i class="fa-solid fa-hurricane"></i></div>
+                        <div>
+                            <div class="cinzel text-purple-200 text-base">Abyssal Nova</div>
+                            <div class="text-xs text-purple-400/70">NG+ Destructive Burst</div>
+                        </div>
+                    </div>
+                    <div class="text-purple-300 text-sm bg-purple-900/50 px-2 py-1 rounded">100,000 S</div>
+                </button>
             </div>
             
             <div id="panel-leaderboard" class="hidden flex-col h-full">
@@ -496,7 +524,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -513,12 +541,9 @@
         const provider = new GoogleAuthProvider();
 
         const btnGoogle = document.getElementById('btn-google');
-        const btnAnon = document.getElementById('btn-anon');
         const authLoading = document.getElementById('auth-loading');
         const authButtons = document.getElementById('auth-buttons');
-        let isAnonFlow = false;
 
-        // Catch errors if the redirect flow fails or gets blocked
         getRedirectResult(auth).catch((error) => {
             authButtons.classList.remove('hidden'); authLoading.classList.add('hidden');
             alert("Login Failed: " + error.message);
@@ -529,17 +554,6 @@
             signInWithRedirect(auth, provider);
         };
 
-        btnAnon.onclick = async () => {
-            try {
-                authButtons.classList.add('hidden'); authLoading.classList.remove('hidden');
-                isAnonFlow = true;
-                await signInAnonymously(auth);
-            } catch (e) {
-                authButtons.classList.remove('hidden'); authLoading.classList.add('hidden');
-                alert("Guest Login Failed: " + e.message);
-            }
-        };
-
         window.logout = async () => {
             await signOut(auth);
             location.reload();
@@ -548,18 +562,11 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 document.getElementById('startup-screen').classList.add('hidden');
-                if (loadSaveState()) {
-                    if (user.displayName && !isAnonFlow) state.playerName = user.displayName;
-                    initGame();
-                } else {
-                    if (user.isAnonymous || !user.displayName) {
-                        document.getElementById('name-create-screen').classList.remove('hidden');
-                        document.getElementById('name-create-screen').classList.add('flex');
-                    } else {
-                        state.playerName = user.displayName;
-                        initGame();
-                    }
+                if (!state.playerName) {
+                    state.playerName = user.displayName || "Nameless Undead";
                 }
+                loadSaveState();
+                initGame();
             }
         });
 
@@ -633,7 +640,9 @@
             summons: {
                 hollow: { qty: 0, sps: 1, baseCost: 50 },
                 warrior: { qty: 0, sps: 5, baseCost: 500 },
-                knight: { qty: 0, sps: 25, baseCost: 3000 }
+                knight: { qty: 0, sps: 25, baseCost: 3000 },
+                silver: { qty: 0, sps: 150, baseCost: 25000 },
+                dragon: { qty: 0, sps: 1000, baseCost: 200000 }
             },
             actionCost: 15, dodgeCost: 25, isDodging: false, lastDodgeTime: 0, dodgeDirection: null, dodgeDuration: 800, mode: 'bonfire',
             bloodstain: { active: false, souls: 0, isMemory: false },
@@ -667,7 +676,7 @@
         let rightMenuOpen = false;
 
         const DOM = {
-            nameScreen: document.getElementById('name-create-screen'), nameInput: document.getElementById('player-name-input'), nameDisplay: document.getElementById('player-name-display'),
+            nameDisplay: document.getElementById('player-name-display'),
             souls: document.getElementById('souls-display'), sps: document.getElementById('sps-display'),
             hpText: document.getElementById('hp-text'), hpBar: document.getElementById('hp-bar'),
             stamText: document.getElementById('stamina-text'), stamBar: document.getElementById('stamina-bar'),
@@ -695,15 +704,6 @@
         window.toggleLeftMenu = () => { leftMenuOpen = !leftMenuOpen; leftMenuOpen ? (DOM.leftPanel.classList.remove('-translate-x-full'), DOM.mobileOverlay.classList.remove('hidden'), rightMenuOpen && window.toggleRightMenu()) : (DOM.leftPanel.classList.add('-translate-x-full'), !rightMenuOpen && DOM.mobileOverlay.classList.add('hidden')); };
         window.toggleRightMenu = () => { rightMenuOpen = !rightMenuOpen; rightMenuOpen ? (DOM.rightPanel.classList.remove('translate-x-full'), DOM.mobileOverlay.classList.remove('hidden'), leftMenuOpen && window.toggleLeftMenu()) : (DOM.rightPanel.classList.add('translate-x-full'), !leftMenuOpen && DOM.mobileOverlay.classList.add('hidden')); };
         window.closeMenus = () => { leftMenuOpen && window.toggleLeftMenu(); rightMenuOpen && window.toggleRightMenu(); };
-
-        window.confirmName = () => {
-            const n = DOM.nameInput.value.trim() || "Nameless Undead";
-            state.playerName = n;
-            DOM.nameDisplay.textContent = n;
-            DOM.nameScreen.classList.add('hidden');
-            DOM.nameScreen.classList.remove('flex');
-            initGame();
-        };
 
         function initGame() {
             DOM.nameDisplay.textContent = state.playerName;
@@ -787,7 +787,9 @@
         function getSPS() {
             return (state.summons.hollow.qty * state.summons.hollow.sps) +
                    (state.summons.warrior.qty * state.summons.warrior.sps) +
-                   (state.summons.knight.qty * state.summons.knight.sps);
+                   (state.summons.knight.qty * state.summons.knight.sps) +
+                   (state.summons.silver.qty * state.summons.silver.sps) +
+                   (state.summons.dragon.qty * state.summons.dragon.sps);
         }
 
         function spawnVisualSoul() {
@@ -827,7 +829,7 @@
             }
             
             let timeBuffMult = state.timeMaidenBuff > 0 ? 10 : 1;
-            const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs * timeBuffMult;
+            const gain = (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1))) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs * timeBuffMult;
             state.souls += gain;
 
             state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
@@ -850,7 +852,7 @@
             state.specialMeter = 0;
             DOM.specialBtn.classList.remove('ready');
             
-            const dmgBase = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult);
+            const dmgBase = (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1)) * state.weapons[state.weaponIndex].mult);
             const specialMult = 50 + (state.levels.special * 10);
             const dmg = dmgBase * specialMult * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
             
@@ -862,7 +864,7 @@
                 state.bossHp -= dmg;
                 if (state.bossHp <= 0) defeatBoss();
             } else {
-                state.souls += dmg * 10; // Extra souls if used at bonfire
+                state.souls += dmg * 10;
             }
         };
 
@@ -877,7 +879,7 @@
                 DOM.parryCount.textContent = state.parryClicks;
                 createFloatingText(clientX, clientY, "⚡ PARRY!", "#a855f7", 0.4, -40);
                 
-                const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
+                const dmg = (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
                 state.bossHp -= dmg;
                 chargeSpecialMeter(5);
                 state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.5);
@@ -890,7 +892,7 @@
                 state.stamina -= state.actionCost;
             }
             
-            const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
+            const dmg = (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1)) * state.weapons[state.weaponIndex].mult) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
             state.bossHp -= dmg;
             state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
             chargeSpecialMeter(3);
@@ -949,9 +951,21 @@
                     setTimeout(() => flash.remove(), 500);
                     
                     if (state.mode === 'boss' || state.mode === 'dungeon') {
-                        const dmg = ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult) * 50 * state.dmgMultiplier * state.permanentMult * state.maidenBuffs;
+                        const dmg = (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1)) * state.weapons[state.weaponIndex].mult) * 50 * state.dmgMultiplier * state.permanentMult * state.maidenBuffs;
                         state.bossHp -= dmg;
                         createFloatingText(window.innerWidth/2, window.innerHeight/2, formatLargeNumberDisplay(dmg), '#fef08a', 2);
+                        if (state.bossHp <= 0) defeatBoss();
+                    }
+                }
+            } else if (spell === 'abyss') {
+                if (state.souls >= 100000 && state.ngPlus > 0) {
+                    state.souls -= 100000;
+                    let flash = document.createElement('div'); flash.className = 'wotg-active bg-purple-500'; document.body.appendChild(flash);
+                    setTimeout(() => flash.remove(), 500);
+                    if (state.mode === 'boss' || state.mode === 'dungeon') {
+                        const dmg = (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1)) * state.weapons[state.weaponIndex].mult) * 200 * state.dmgMultiplier * state.permanentMult * state.maidenBuffs;
+                        state.bossHp -= dmg;
+                        createFloatingText(window.innerWidth/2, window.innerHeight/2, formatLargeNumberDisplay(dmg), '#a855f7', 2);
                         if (state.bossHp <= 0) defeatBoss();
                     }
                 }
@@ -1024,7 +1038,7 @@
             if (requiredDodge === 'mega') {
                 if (state.parryClicks >= state.requiredParryClicks) {
                     dodged = true;
-                    const counterDamage = (boss.maxHp * 0.15) + ((state.clickDamageBase + (state.levels.strength * 2)) * state.weapons[state.weaponIndex].mult * 10);
+                    const counterDamage = (boss.maxHp * 0.15) + (Math.floor(10 * Math.pow(1.15, state.levels.strength - 1)) * state.weapons[state.weaponIndex].mult * 10);
                     state.bossHp -= counterDamage;
                     createFloatingText(window.innerWidth/2, window.innerHeight/2, `💥 PARRY COUNTER! -${formatLargeNumberDisplay(counterDamage)}`, "#fde047", 1.8, -60);
                     if (state.bossHp <= 0) { defeatBoss(); return; }
@@ -1136,6 +1150,8 @@
 
             if (state.currentBossIndex >= 7 && state.weaponIndex < state.weapons.length - 1) state.pendingWeaponChest = true;
             if (state.currentBossIndex >= 5) document.getElementById('upg-special').classList.remove('hidden');
+            if (state.currentBossIndex >= 5 || state.ngPlus > 0) document.getElementById('sum-silver').classList.remove('hidden');
+            if (state.currentBossIndex >= 10 || state.ngPlus > 0) document.getElementById('sum-dragon').classList.remove('hidden');
 
             state.currentBossIndex++;
             setMode('bonfire');
@@ -1143,13 +1159,13 @@
             if (state.currentBossIndex >= state.activeBosses.length) {
                 state.ngPlus++; state.currentBossIndex = 0; populateBosses();
                 
-                // Reset stats upon NG+
                 state.levels = { vigor: 1, endurance: 1, strength: 1, parry: 0, special: 1 };
                 state.maxHp = 100; state.hp = 100; state.maxStamina = 100; state.stamina = 100; state.staminaRegen = 25;
                 state.costs = { vigor: 100, endurance: 100, strength: 150, parry: 500, special: 5000 };
 
                 DOM.locName.textContent = "Kiln of the First Flame";
                 createFloatingText(window.innerWidth/2, 100, `JOURNEY ${state.ngPlus+1} BEGINS`, "#c084fc", 3);
+                document.getElementById('spell-abyss').classList.remove('hidden');
             } else { DOM.locName.textContent = `Area ${state.currentBossIndex + 1}`; }
 
             if (state.pendingWeaponChest) triggerBossWeaponChest();
@@ -1284,8 +1300,8 @@
                 if (stat === 'parry') state.costs[stat] = Math.floor(500 * Math.pow(1.5, state.levels[stat]));
                 else state.costs[stat] = Math.floor((100 + (stat==='strength'?50:0) + (stat==='special'?4900:0)) * Math.pow(1.15, state.levels[stat]-1));
 
-                if (stat === 'vigor') { state.maxHp += 20; state.hp += 20; }
-                else if (stat === 'endurance') { state.maxStamina += 15; state.staminaRegen += 2; }
+                if (stat === 'vigor') { state.maxHp = Math.floor(100 * Math.pow(1.1, state.levels.vigor)); state.hp = state.maxHp; }
+                else if (stat === 'endurance') { state.maxStamina = Math.floor(100 * Math.pow(1.05, state.levels.endurance)); state.staminaRegen = Math.floor(25 * Math.pow(1.05, state.levels.endurance)); }
                 saveState();
             }
         };
@@ -1330,29 +1346,29 @@
             else { DOM.pauseMenu.classList.add('hidden'); DOM.pauseMenu.classList.remove('flex'); lastTime = performance.now(); }
         };
         
-        window.exportSave = () => { const s = btoa(localStorage.getItem('soulsClickerSave_v5')); prompt("Copy your save data:", s); };
+        window.exportSave = () => { const s = btoa(localStorage.getItem('soulsClickerSave_v6')); prompt("Copy your save data:", s); };
         window.importSave = () => { 
             const d = prompt("Paste your save data:"); 
-            if(d){ try { localStorage.setItem('soulsClickerSave_v5', atob(d)); location.reload(); } catch(e){ alert("Invalid Save!"); }}
+            if(d){ try { localStorage.setItem('soulsClickerSave_v6', atob(d)); location.reload(); } catch(e){ alert("Invalid Save!"); }}
         };
 
         window.saveAndQuit = () => { saveState(); location.reload(); };
 
         function saveState() {
             try {
-                localStorage.setItem('soulsClickerSave_v5', JSON.stringify({
+                localStorage.setItem('soulsClickerSave_v6', JSON.stringify({
                     playerName: state.playerName, souls: state.souls, ngPlus: state.ngPlus, levels: state.levels, weaponIndex: state.weaponIndex,
                     maxEstus: state.maxEstus, estus: state.estus, hp: state.hp, stamina: state.stamina, mode: state.mode, currentBossIndex: state.currentBossIndex, dungeonIndex: state.dungeonIndex,
                     bossHp: state.bossHp, bossDeaths: state.bossDeaths, sunQueenDefeated: state.sunQueenDefeated, bloodstain: state.bloodstain,
                     permanentMult: state.permanentMult, maidenBuffs: state.maidenBuffs, pendingWeaponChest: state.pendingWeaponChest, specialMeter: state.specialMeter,
-                    summons: { hollow: state.summons.hollow.qty, warrior: state.summons.warrior.qty, knight: state.summons.knight.qty }
+                    summons: { hollow: state.summons.hollow.qty, warrior: state.summons.warrior.qty, knight: state.summons.knight.qty, silver: state.summons.silver.qty, dragon: state.summons.dragon.qty }
                 }));
             } catch(e) {}
         }
 
         function loadSaveState() {
             try {
-                const saved = localStorage.getItem('soulsClickerSave_v5');
+                const saved = localStorage.getItem('soulsClickerSave_v6');
                 if (saved) {
                     const data = JSON.parse(saved);
                     state.playerName = data.playerName || "Undead"; state.souls = data.souls || 0; state.ngPlus = data.ngPlus || 0;
@@ -1367,10 +1383,16 @@
                     DOM.dungeonLevelDisp.textContent = `F${state.dungeonIndex + 1}`;
                     
                     if (data.bloodstain) state.bloodstain = data.bloodstain;
-                    if (data.summons) { state.summons.hollow.qty = data.summons.hollow || 0; state.summons.warrior.qty = data.summons.warrior || 0; state.summons.knight.qty = data.summons.knight || 0; }
+                    if (data.summons) { 
+                        state.summons.hollow.qty = data.summons.hollow || 0; 
+                        state.summons.warrior.qty = data.summons.warrior || 0; 
+                        state.summons.knight.qty = data.summons.knight || 0; 
+                        state.summons.silver.qty = data.summons.silver || 0;
+                        state.summons.dragon.qty = data.summons.dragon || 0;
+                    }
 
-                    state.maxHp = 100 + ((state.levels.vigor - 1) * 20); state.hp = data.hp !== undefined ? data.hp : state.maxHp;
-                    state.maxStamina = 100 + ((state.levels.endurance - 1) * 15); state.staminaRegen = 25 + ((state.levels.endurance - 1) * 2);
+                    state.maxHp = Math.floor(100 * Math.pow(1.1, state.levels.vigor)); state.hp = data.hp !== undefined ? data.hp : state.maxHp;
+                    state.maxStamina = Math.floor(100 * Math.pow(1.05, state.levels.endurance)); state.staminaRegen = Math.floor(25 * Math.pow(1.05, state.levels.endurance));
                     state.stamina = data.stamina !== undefined ? data.stamina : state.maxStamina;
                     
                     state.costs.vigor = Math.floor(100 * Math.pow(1.15, state.levels.vigor-1)); state.costs.endurance = Math.floor(100 * Math.pow(1.15, state.levels.endurance-1));
@@ -1381,14 +1403,19 @@
                     populateBosses();
                     if(state.sunQueenDefeated) DOM.btnDungeon.classList.remove('hidden');
                     if(state.currentBossIndex >= 5) document.getElementById('upg-special').classList.remove('hidden');
+                    if(state.currentBossIndex >= 5 || state.ngPlus > 0) document.getElementById('sum-silver').classList.remove('hidden');
+                    if(state.currentBossIndex >= 10 || state.ngPlus > 0) document.getElementById('sum-dragon').classList.remove('hidden');
+                    if(state.ngPlus > 0) document.getElementById('spell-abyss').classList.remove('hidden');
 
                     if (state.mode === 'boss' || state.mode === 'dungeon') {
                         if (state.mode === 'dungeon') {
                             spawnDungeonEnemy();
                         } else {
                             const boss = state.activeBosses[state.currentBossIndex];
-                            if (boss) { setupCombatEncounter(boss.name, boss.icon, state.bossHp <= 0 ? boss.maxHp : state.bossHp, 'boss'); } 
-                            else { setMode('bonfire'); }
+                            if (boss) { 
+                                state.bossHp = Math.min(state.bossHp, boss.maxHp);
+                                setupCombatEncounter(boss.name, boss.icon, state.bossHp <= 0 ? boss.maxHp : state.bossHp, 'boss'); 
+                            } else { setMode('bonfire'); }
                         }
                     } else if (state.pendingWeaponChest) { triggerBossWeaponChest(); } 
                     else { setMode('bonfire'); }
@@ -1453,7 +1480,7 @@
 
             document.getElementById('cost-estus').textContent = formatLargeNumberDisplay(state.estusUpgradeCost); document.getElementById('upg-estus').disabled = state.souls < state.estusUpgradeCost;
 
-            updateSummonUI('hollow'); updateSummonUI('warrior'); updateSummonUI('knight');
+            updateSummonUI('hollow'); updateSummonUI('warrior'); updateSummonUI('knight'); updateSummonUI('silver'); updateSummonUI('dragon');
         }
 
         function updateSummonUI(type) {
