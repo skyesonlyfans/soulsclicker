@@ -496,7 +496,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -518,14 +518,15 @@
         const authButtons = document.getElementById('auth-buttons');
         let isAnonFlow = false;
 
-        btnGoogle.onclick = async () => {
-            try {
-                authButtons.classList.add('hidden'); authLoading.classList.remove('hidden');
-                await signInWithPopup(auth, provider);
-            } catch (e) {
-                authButtons.classList.remove('hidden'); authLoading.classList.add('hidden');
-                alert("Login Failed: " + e.message);
-            }
+        // Catch errors if the redirect flow fails or gets blocked
+        getRedirectResult(auth).catch((error) => {
+            authButtons.classList.remove('hidden'); authLoading.classList.add('hidden');
+            alert("Login Failed: " + error.message);
+        });
+
+        btnGoogle.onclick = () => {
+            authButtons.classList.add('hidden'); authLoading.classList.remove('hidden');
+            signInWithRedirect(auth, provider);
         };
 
         btnAnon.onclick = async () => {
