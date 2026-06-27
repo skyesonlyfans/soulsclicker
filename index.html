@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Souls Clicker: Extended Edition</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Cormorant+Garamond:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -100,6 +100,13 @@
             100% { box-shadow: 0 0 25px #38bdf8 inset; }
         }
 
+        .special-text-glow {
+            text-shadow: 0px 0px 4px rgba(0, 0, 0, 1), 0px 0px 8px rgba(0, 0, 0, 1), 0px 2px 4px rgba(0, 0, 0, 0.8);
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: 0.1em;
+        }
+
         .powerup-glow { box-shadow: 0 0 20px #a855f7 inset; border-color: #d8b4fe !important; }
 
         .wotg-active { animation: wotg-flash 0.5s ease-out; pointer-events: none; z-index: 9999; position: fixed; inset: 0; }
@@ -138,13 +145,17 @@
 <body class="h-screen flex flex-col md:flex-row overflow-hidden relative">
 
     <div id="startup-screen" class="fixed inset-0 bg-zinc-950 z-[100] flex flex-col items-center justify-center">
-        <h1 class="cinzel text-6xl text-[#c5a961] mb-2 tracking-widest drop-shadow-[0_0_15px_rgba(197,169,97,0.5)]">Souls Clicker</h1>
+        <h1 class="cinzel text-6xl text-[#c5a961] mb-2 tracking-widest drop-shadow-[0_0_15px_rgba(197,169,97,0.5)] text-center">Souls Clicker</h1>
         <p class="text-zinc-500 mb-8 font-serif italic text-sm">developer credit: @skyeprobably on Instagram</p>
-        <div class="flex flex-col gap-4 w-64 mt-4">
-            <button id="btn-login-guest" class="py-3 px-6 bg-zinc-800 border border-zinc-600 text-zinc-300 rounded shadow hover:bg-zinc-700 transition cinzel">
-                Play / Load
+        <div id="auth-buttons" class="flex flex-col gap-4 w-64 mt-4">
+            <button id="btn-google" class="py-3 px-6 bg-white border border-gray-300 text-gray-800 rounded shadow hover:bg-gray-100 transition flex justify-center items-center gap-3 font-sans font-medium">
+                <i class="fa-brands fa-google text-red-500"></i> Sign in with Google
+            </button>
+            <button id="btn-anon" class="py-3 px-6 bg-zinc-800 border border-zinc-600 text-zinc-300 rounded shadow hover:bg-zinc-700 transition cinzel">
+                Play as Guest
             </button>
         </div>
+        <p id="auth-loading" class="hidden text-zinc-400 mt-6 cinzel animate-pulse">Awakening...</p>
     </div>
 
     <div id="name-create-screen" class="fixed inset-0 bg-zinc-900 z-[90] hidden flex-col items-center justify-center bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'#ffffff\' fill-opacity=\'0.05\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')]">
@@ -160,6 +171,7 @@
             <button onclick="exportSave()" class="py-2 px-6 bg-blue-900 border border-blue-600 text-blue-200 rounded shadow hover:bg-blue-800 transition cinzel text-lg">Export Save</button>
             <button onclick="importSave()" class="py-2 px-6 bg-green-900 border border-green-600 text-green-200 rounded shadow hover:bg-green-800 transition cinzel text-lg">Import Save</button>
             <button onclick="saveAndQuit()" class="py-3 px-6 bg-zinc-800 border border-red-900 text-red-400 rounded shadow hover:bg-zinc-700 hover:text-red-300 transition cinzel text-xl mt-4">Save & Quit</button>
+            <button onclick="logout()" class="py-2 px-6 bg-zinc-900 border border-zinc-800 text-zinc-500 rounded shadow hover:bg-zinc-800 hover:text-zinc-300 transition cinzel text-sm mt-8">Log Out</button>
         </div>
     </div>
 
@@ -222,7 +234,7 @@
         </button>
 
         <button onclick="enterDungeon()" id="btn-dungeon" class="mt-2 hidden w-full py-2 border border-indigo-700 hover:border-indigo-400 hover:text-indigo-300 transition cinzel flex justify-center items-center gap-2 bg-indigo-950/30 text-sm md:text-base text-indigo-500">
-            <i class="fa-solid fa-dungeon"></i> Enter Dungeon
+            <i class="fa-solid fa-dungeon"></i> Delve Dungeon <span id="dungeon-level-disp" class="text-xs text-indigo-400 ml-2">F1</span>
         </button>
         
         <div class="mt-4 md:mt-6 flex-1">
@@ -359,9 +371,9 @@
                 </button>
                 
                 <div id="dodge-container" class="hidden w-full flex flex-col gap-2">
-                    <button id="special-btn" onclick="useSpecialAttack()" class="w-full bg-zinc-800 border border-zinc-700 text-zinc-500 cinzel py-1 rounded text-sm flex items-center justify-center relative overflow-hidden opacity-70">
+                    <button id="special-btn" onclick="useSpecialAttack()" class="w-full bg-zinc-800 border border-zinc-700 text-zinc-500 cinzel py-2 rounded text-sm flex items-center justify-center relative overflow-hidden opacity-70">
                         <div id="special-bar" class="absolute left-0 top-0 h-full bg-sky-600 transition-all duration-200 pointer-events-none" style="width: 0%"></div>
-                        <span class="z-10 relative"><i class="fa-solid fa-bolt"></i> SPECIAL [E] <span id="special-text">0%</span></span>
+                        <span class="z-10 relative special-text-glow flex items-center gap-2"><i class="fa-solid fa-bolt text-yellow-400"></i> SPECIAL [E] <span id="special-text">0%</span></span>
                     </button>
 
                     <button id="dodge-btn" onclick="dodge('space')" class="w-full bg-zinc-800 border border-zinc-600 text-zinc-200 cinzel py-3 md:py-3 px-4 md:px-6 rounded text-lg flex items-center justify-center gap-2 shadow-lg active:bg-zinc-700">
@@ -484,6 +496,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         
         const firebaseConfig = {
@@ -496,6 +509,58 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        const btnGoogle = document.getElementById('btn-google');
+        const btnAnon = document.getElementById('btn-anon');
+        const authLoading = document.getElementById('auth-loading');
+        const authButtons = document.getElementById('auth-buttons');
+        let isAnonFlow = false;
+
+        btnGoogle.onclick = async () => {
+            try {
+                authButtons.classList.add('hidden'); authLoading.classList.remove('hidden');
+                await signInWithPopup(auth, provider);
+            } catch (e) {
+                authButtons.classList.remove('hidden'); authLoading.classList.add('hidden');
+                alert("Login Failed: " + e.message);
+            }
+        };
+
+        btnAnon.onclick = async () => {
+            try {
+                authButtons.classList.add('hidden'); authLoading.classList.remove('hidden');
+                isAnonFlow = true;
+                await signInAnonymously(auth);
+            } catch (e) {
+                authButtons.classList.remove('hidden'); authLoading.classList.add('hidden');
+                alert("Guest Login Failed: " + e.message);
+            }
+        };
+
+        window.logout = async () => {
+            await signOut(auth);
+            location.reload();
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('startup-screen').classList.add('hidden');
+                if (loadSaveState()) {
+                    if (user.displayName && !isAnonFlow) state.playerName = user.displayName;
+                    initGame();
+                } else {
+                    if (user.isAnonymous || !user.displayName) {
+                        document.getElementById('name-create-screen').classList.remove('hidden');
+                        document.getElementById('name-create-screen').classList.add('flex');
+                    } else {
+                        state.playerName = user.displayName;
+                        initGame();
+                    }
+                }
+            }
+        });
 
         window.fetchLeaderboard = async () => {
             const listEl = document.getElementById('leaderboard-list');
@@ -508,17 +573,19 @@
                     listEl.innerHTML += `
                         <div class="flex justify-between items-center p-2 bg-zinc-900 border border-zinc-800 rounded text-xs">
                             <span class="cinzel text-zinc-300">${data.name}</span>
-                            <span class="text-[#c5a961]">NG+${data.ngPlus}</span>
+                            <span class="text-[#c5a961]">NG+${data.ngPlus} | ${formatLargeNumberDisplay(data.souls)} S</span>
                         </div>
                     `;
                 });
                 if(listEl.innerHTML === '') listEl.innerHTML = '<p class="text-center text-xs text-zinc-500 italic mt-4">No legends yet.</p>';
             } catch (e) {
-                listEl.innerHTML = `<p class="text-center text-xs text-red-500 italic mt-4">Offline / Error.</p>`;
+                console.error(e);
+                listEl.innerHTML = `<p class="text-center text-xs text-red-500 italic mt-4">Offline / Error connecting to records.</p>`;
             }
         };
 
         window.saveHighscore = async () => {
+            if(!auth.currentUser) { alert("Must be authenticated to save score."); return; }
             if(state.souls === 0 && state.ngPlus === 0) return;
             try {
                 await addDoc(collection(db, "highscores"), {
@@ -530,7 +597,8 @@
                 alert("Score published to the records!");
                 window.fetchLeaderboard();
             } catch (e) {
-                alert("Could not connect to the network.");
+                console.error(e);
+                alert("Could not connect to the network or denied by security rules.");
             }
         };
     </script>
@@ -559,6 +627,7 @@
             ],
             maxEstus: 3, estus: 3, estusUpgradeCost: 1000,
             chestActive: false, powerupTimer: 0, dmgMultiplier: 1, spellBoostMult: 1,
+            timeMaidenBuff: 0,
             specialMeter: 0, specialMax: 100,
             summons: {
                 hollow: { qty: 0, sps: 1, baseCost: 50 },
@@ -597,7 +666,6 @@
         let rightMenuOpen = false;
 
         const DOM = {
-            startup: document.getElementById('startup-screen'), btnGuest: document.getElementById('btn-login-guest'),
             nameScreen: document.getElementById('name-create-screen'), nameInput: document.getElementById('player-name-input'), nameDisplay: document.getElementById('player-name-display'),
             souls: document.getElementById('souls-display'), sps: document.getElementById('sps-display'),
             hpText: document.getElementById('hp-text'), hpBar: document.getElementById('hp-bar'),
@@ -607,7 +675,7 @@
             targetBloodstain: document.getElementById('target-bloodstain'), bloodIcon: document.getElementById('bloodstain-icon'),
             bossUi: document.getElementById('boss-ui'), bossName: document.getElementById('boss-name'), bossHpBar: document.getElementById('boss-hp-bar'), bossIcon: document.getElementById('boss-icon'),
             bossIndicator: document.getElementById('boss-attack-indicator'),
-            btnChallenge: document.getElementById('btn-challenge'), btnDungeon: document.getElementById('btn-dungeon'), dodgeContainer: document.getElementById('dodge-container'), btnDodge: document.getElementById('dodge-btn'), btnRest: document.getElementById('btn-rest'),
+            btnChallenge: document.getElementById('btn-challenge'), btnDungeon: document.getElementById('btn-dungeon'), dungeonLevelDisp: document.getElementById('dungeon-level-disp'), dodgeContainer: document.getElementById('dodge-container'), btnDodge: document.getElementById('dodge-btn'), btnRest: document.getElementById('btn-rest'),
             specialBtn: document.getElementById('special-btn'), specialBar: document.getElementById('special-bar'), specialText: document.getElementById('special-text'),
             deathScreen: document.getElementById('death-screen'), deathSub: document.getElementById('death-subtext'),
             ngBadge: document.getElementById('ng-badge'), locName: document.getElementById('location-name'),
@@ -626,16 +694,6 @@
         window.toggleLeftMenu = () => { leftMenuOpen = !leftMenuOpen; leftMenuOpen ? (DOM.leftPanel.classList.remove('-translate-x-full'), DOM.mobileOverlay.classList.remove('hidden'), rightMenuOpen && window.toggleRightMenu()) : (DOM.leftPanel.classList.add('-translate-x-full'), !rightMenuOpen && DOM.mobileOverlay.classList.add('hidden')); };
         window.toggleRightMenu = () => { rightMenuOpen = !rightMenuOpen; rightMenuOpen ? (DOM.rightPanel.classList.remove('translate-x-full'), DOM.mobileOverlay.classList.remove('hidden'), leftMenuOpen && window.toggleLeftMenu()) : (DOM.rightPanel.classList.add('translate-x-full'), !leftMenuOpen && DOM.mobileOverlay.classList.add('hidden')); };
         window.closeMenus = () => { leftMenuOpen && window.toggleLeftMenu(); rightMenuOpen && window.toggleRightMenu(); };
-
-        DOM.btnGuest.onclick = () => {
-            DOM.startup.classList.add('hidden');
-            if (loadSaveState()) {
-                initGame();
-            } else {
-                DOM.nameScreen.classList.remove('hidden');
-                DOM.nameScreen.classList.add('flex');
-            }
-        };
 
         window.confirmName = () => {
             const n = DOM.nameInput.value.trim() || "Nameless Undead";
@@ -696,6 +754,10 @@
                         state.dmgMultiplier = 1;
                         DOM.mainArea.classList.remove('powerup-glow');
                     }
+                }
+
+                if (state.timeMaidenBuff > 0) {
+                    state.timeMaidenBuff -= dt;
                 }
                 
                 autoSaveTimer += dt;
@@ -758,12 +820,13 @@
 
         window.gatherSouls = (e, isSpell = false) => {
             if (state.isPaused || state.hp <= 0) return;
-            if (!isSpell) {
+            if (!isSpell && state.timeMaidenBuff <= 0) {
                 if (state.stamina < state.actionCost) return;
                 state.stamina -= state.actionCost;
             }
             
-            const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs;
+            let timeBuffMult = state.timeMaidenBuff > 0 ? 10 : 1;
+            const gain = (1 + Math.floor(state.levels.strength * 0.5)) * state.dmgMultiplier * state.spellBoostMult * state.permanentMult * state.maidenBuffs * timeBuffMult;
             state.souls += gain;
 
             state.skullSpeedBoost = Math.min(5.0, state.skullSpeedBoost + 1.2);
@@ -821,7 +884,7 @@
                 return;
             }
 
-            if (!isSpell) {
+            if (!isSpell && state.timeMaidenBuff <= 0) {
                 if (state.stamina < state.actionCost) return;
                 state.stamina -= state.actionCost;
             }
@@ -845,9 +908,10 @@
             const now = performance.now();
 
             if (state.lastDodgeTime && now - state.lastDodgeTime < 1000) return;
-            if (state.stamina < state.dodgeCost) { triggerFailedDodgeFeedback(); return; }
+            if (state.timeMaidenBuff <= 0 && state.stamina < state.dodgeCost) { triggerFailedDodgeFeedback(); return; }
             
-            state.stamina -= state.dodgeCost; state.isDodging = true; state.dodgeDirection = direction; state.lastDodgeTime = now;
+            if(state.timeMaidenBuff <= 0) state.stamina -= state.dodgeCost; 
+            state.isDodging = true; state.dodgeDirection = direction; state.lastDodgeTime = now;
             DOM.btnDodge.classList.add('dodging');
             
             clearTimeout(dodgeTimeout);
@@ -985,18 +1049,40 @@
 
         window.enterDungeon = () => {
             if (state.isPaused || state.hp <= 0 || state.mode !== 'bonfire') return;
-            state.dungeonIndex = 0;
             spawnDungeonEnemy();
         };
 
         function spawnDungeonEnemy() {
-            let isMiniBoss = state.dungeonIndex >= 5;
-            let hpMult = Math.pow(3, state.ngPlus) * (isMiniBoss ? 2 : 0.5);
-            let soulReward = 20000 * Math.pow(5, state.ngPlus) * (isMiniBoss ? 3 : 1);
+            let floor = state.dungeonIndex + 1;
+            let isMiniBoss = floor % 5 === 0 && floor % 10 !== 0;
+            let isMajorBoss = floor % 10 === 0;
+            
+            let hpMult = Math.pow(3, state.ngPlus) * Math.pow(1.5, Math.floor(floor / 5));
+            let dmgMult = Math.pow(3, state.ngPlus) * Math.pow(1.2, Math.floor(floor / 5));
+            
+            if (isMiniBoss) hpMult *= 2.5;
+            if (isMajorBoss) hpMult *= 6;
+            
+            let soulReward = 10000 * Math.pow(5, state.ngPlus) * Math.pow(1.5, Math.floor(floor / 2));
+            if (isMiniBoss) soulReward *= 3;
+            if (isMajorBoss) soulReward *= 10;
+            
+            let name = `Dungeon Hollow (F${floor})`;
+            let icon = "fa-ghost";
+            let attackInt = 3000;
+            let windup = 800;
+
+            if (isMiniBoss) { name = `Dungeon Warden (F${floor})`; icon = "fa-chess-rook"; attackInt = 2000; }
+            if (isMajorBoss) { name = `Abyssal Lord (F${floor})`; icon = "fa-dragon"; attackInt = 1500; windup = 600; }
+
             state.tempBoss = { 
-                name: isMiniBoss ? "Dungeon Warden" : `Dungeon Hollow ${state.dungeonIndex + 1}/5`, 
-                maxHp: 8000 * hpMult, attackDmg: (isMiniBoss ? 150 : 50) * Math.pow(3, state.ngPlus), 
-                attackInterval: isMiniBoss ? 1800 : 3000, windupTime: 800, icon: isMiniBoss ? "fa-chess-rook" : "fa-ghost", soulsReward: soulReward 
+                name: name, 
+                maxHp: 5000 * hpMult, 
+                attackDmg: 50 * dmgMult * (isMajorBoss ? 3 : isMiniBoss ? 1.5 : 1), 
+                attackInterval: Math.max(800, attackInt - (floor * 20)), 
+                windupTime: windup, 
+                icon: icon, 
+                soulsReward: soulReward 
             };
             setupCombatEncounter(state.tempBoss.name, state.tempBoss.icon, state.tempBoss.maxHp, 'dungeon');
         }
@@ -1017,10 +1103,17 @@
             if (state.mode === 'dungeon') {
                 state.souls += state.tempBoss.soulsReward * state.permanentMult * state.maidenBuffs;
                 state.dungeonIndex++;
-                if (state.dungeonIndex > 5) {
-                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "DUNGEON CLEARED", "#c084fc", 3);
+                DOM.dungeonLevelDisp.textContent = `F${state.dungeonIndex + 1}`;
+                
+                if (state.dungeonIndex % 10 === 0) {
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "MAJOR BOSS VANQUISHED", "#c084fc", 3);
                     setMode('bonfire');
-                } else { spawnDungeonEnemy(); }
+                } else if (state.dungeonIndex % 5 === 0) {
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "WARDEN SLAIN", "#facc15", 3);
+                    setMode('bonfire');
+                } else {
+                    spawnDungeonEnemy(); 
+                }
                 saveState(); return;
             }
 
@@ -1104,11 +1197,13 @@
         function spawnMaiden() {
             DOM.targetMaiden.classList.remove('hidden');
             const r = Math.random();
-            if (r < 0.20) state.maidenType = 1;
-            else if (r < 0.40) state.maidenType = 2;
-            else if (r < 0.60) state.maidenType = 3;
-            else if (r < 0.80) state.maidenType = 4;
-            else state.maidenType = 5;
+            if (r < 0.15) state.maidenType = 1;
+            else if (r < 0.30) state.maidenType = 2;
+            else if (r < 0.45) state.maidenType = 3;
+            else if (r < 0.60) state.maidenType = 4;
+            else if (r < 0.75) state.maidenType = 5;
+            else if (r < 0.90) state.maidenType = 6;
+            else state.maidenType = 7;
         }
 
         window.interactMaiden = () => {
@@ -1120,6 +1215,8 @@
             else if (state.maidenType === 3) DOM.maidenDialogue.textContent = `"A shadow of the Old Lords slumbers near. Shall I awaken it for you to challenge?"`;
             else if (state.maidenType === 4) DOM.maidenDialogue.textContent = `"A fallen warrior left these memories behind. Take them." (Grants massive bulk souls)`;
             else if (state.maidenType === 5) DOM.maidenDialogue.textContent = `"Tithe 10% of your souls, and receive my persistent blessing." (+10% permanent soul gain multiplier, stacks)`;
+            else if (state.maidenType === 6) DOM.maidenDialogue.textContent = `"I can warp the fabric of time for a fleeting moment. Will you channel it?" (30 seconds of 0 Stamina cost and 10x souls per click)`;
+            else if (state.maidenType === 7) DOM.maidenDialogue.textContent = `"Offer me your vitality, and I shall hone your edge in blood." (Lose 50% current HP for +2x Permanent Damage Multiplier)`;
         };
 
         window.acceptMaidenOffer = () => {
@@ -1142,6 +1239,17 @@
                 state.souls -= (state.souls * 0.1);
                 state.maidenBuffs += 0.1;
                 createFloatingText(window.innerWidth/2, window.innerHeight/2, `MULT STACKED (x${state.maidenBuffs.toFixed(2)})`, "#fde047", 2);
+            } else if (state.maidenType === 6) {
+                state.timeMaidenBuff = 30;
+                createFloatingText(window.innerWidth/2, window.innerHeight/2, "TIME WARPED", "#38bdf8", 3);
+            } else if (state.maidenType === 7) {
+                if (state.hp > 1) {
+                    state.hp = Math.floor(state.hp / 2);
+                    state.permanentMult += 2;
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "BLOOD PACT SEALED", "#ef4444", 3);
+                } else {
+                    createFloatingText(window.innerWidth/2, window.innerHeight/2, "NOT ENOUGH VITALITY", "#ef4444", 2);
+                }
             }
             saveState();
         };
@@ -1233,7 +1341,7 @@
             try {
                 localStorage.setItem('soulsClickerSave_v5', JSON.stringify({
                     playerName: state.playerName, souls: state.souls, ngPlus: state.ngPlus, levels: state.levels, weaponIndex: state.weaponIndex,
-                    maxEstus: state.maxEstus, estus: state.estus, hp: state.hp, stamina: state.stamina, mode: state.mode, currentBossIndex: state.currentBossIndex,
+                    maxEstus: state.maxEstus, estus: state.estus, hp: state.hp, stamina: state.stamina, mode: state.mode, currentBossIndex: state.currentBossIndex, dungeonIndex: state.dungeonIndex,
                     bossHp: state.bossHp, bossDeaths: state.bossDeaths, sunQueenDefeated: state.sunQueenDefeated, bloodstain: state.bloodstain,
                     permanentMult: state.permanentMult, maidenBuffs: state.maidenBuffs, pendingWeaponChest: state.pendingWeaponChest, specialMeter: state.specialMeter,
                     summons: { hollow: state.summons.hollow.qty, warrior: state.summons.warrior.qty, knight: state.summons.knight.qty }
@@ -1253,7 +1361,9 @@
                     state.permanentMult = data.permanentMult || 1; state.maidenBuffs = data.maidenBuffs || 1;
                     state.bossDeaths = data.bossDeaths || 0; state.sunQueenDefeated = data.sunQueenDefeated || false;
                     state.mode = data.mode || 'bonfire'; state.currentBossIndex = data.currentBossIndex || 0; state.bossHp = data.bossHp || 0;
+                    state.dungeonIndex = data.dungeonIndex || 0;
                     state.pendingWeaponChest = data.pendingWeaponChest || false; state.specialMeter = data.specialMeter || 0;
+                    DOM.dungeonLevelDisp.textContent = `F${state.dungeonIndex + 1}`;
                     
                     if (data.bloodstain) state.bloodstain = data.bloodstain;
                     if (data.summons) { state.summons.hollow.qty = data.summons.hollow || 0; state.summons.warrior.qty = data.summons.warrior || 0; state.summons.knight.qty = data.summons.knight || 0; }
@@ -1272,9 +1382,13 @@
                     if(state.currentBossIndex >= 5) document.getElementById('upg-special').classList.remove('hidden');
 
                     if (state.mode === 'boss' || state.mode === 'dungeon') {
-                        const boss = state.activeBosses[state.currentBossIndex];
-                        if (boss) { setupCombatEncounter(boss.name, boss.icon, state.bossHp <= 0 ? boss.maxHp : state.bossHp, 'boss'); } 
-                        else { setMode('bonfire'); }
+                        if (state.mode === 'dungeon') {
+                            spawnDungeonEnemy();
+                        } else {
+                            const boss = state.activeBosses[state.currentBossIndex];
+                            if (boss) { setupCombatEncounter(boss.name, boss.icon, state.bossHp <= 0 ? boss.maxHp : state.bossHp, 'boss'); } 
+                            else { setMode('bonfire'); }
+                        }
                     } else if (state.pendingWeaponChest) { triggerBossWeaponChest(); } 
                     else { setMode('bonfire'); }
                     return true;
@@ -1301,6 +1415,7 @@
             
             DOM.stamText.textContent = `${Math.floor(state.stamina)} / ${state.maxStamina}`;
             DOM.stamBar.style.width = `${Math.min(100, Math.max(0, (state.stamina / state.maxStamina) * 100))}%`;
+            if (state.timeMaidenBuff > 0) DOM.stamBar.classList.add('bg-blue-400'); else DOM.stamBar.classList.remove('bg-blue-400');
             if (DOM.mobileStamText) DOM.mobileStamText.textContent = `${Math.floor(state.stamina)} / ${state.maxStamina}`;
             if (DOM.mobileStamBar) DOM.mobileStamBar.style.width = `${Math.min(100, Math.max(0, (state.stamina / state.maxStamina) * 100))}%`;
             
